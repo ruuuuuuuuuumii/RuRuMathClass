@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Ru's math class - 國中數學自主練習平台</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- 頂部導航列 -->
+  <header class="app-header">
+    <div class="logo-area">
+      <div class="logo-icon">📐</div>
+      <div>
+        <h1 class="logo-title">Ru's math class</h1>
+        <p class="logo-subtitle">國中數學自主練習場 ‧ 探索數學的樂趣</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btn-toggle-sound" title="音效開關">
+        <span id="sound-icon">🔊</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 年級切換大標籤 -->
+  <div class="grade-nav-wrapper">
+    <div class="grade-nav">
+      <button class="grade-btn active" data-grade="grade-7">
+        <span class="grade-emoji">🎒</span>
+        <span class="grade-text">七年級專區</span>
+        <span class="grade-tag">開放練習中</span>
+      </button>
+      <button class="grade-btn" data-grade="grade-8">
+        <span class="grade-emoji">📘</span>
+        <span class="grade-text">八年級專區</span>
+        <span class="grade-tag active-tag">新館開放🔥</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 主要內容區塊 -->
+  <main class="main-content">
+
+    <!-- ========================================== -->
+    <!-- 七年級專區 -->
+    <!-- ========================================== -->
+    <section id="grade-7" class="grade-panel active">
+      
+      <!-- 7年級大廳：單元卡片選單 -->
+      <div id="grade-7-hub" class="grade-view active">
+        <div class="grade-banner">
+          <div class="grade-banner-badge">七年級課程專區</div>
+          <h2>🎒 七年級數學主題挑戰館</h2>
+          <p>請選擇想練習的主題，點選「進入館別」即可開始遊戲化練習！</p>
+        </div>
+
+        <div class="units-grid">
+          
+          <!-- 整數的運算 (籌備中) -->
+          <div class="unit-card">
+            <div class="unit-card-header">
+              <span class="unit-icon">➕➖</span>
+              <span class="unit-status soon">即將開放</span>
+            </div>
+            <h3 class="unit-title">整數運算館</h3>
+            <p class="unit-desc">正負數四則運算、數線距離與絕對值挑戰，掃除負負得正的運算恐懼！</p>
+            <div class="unit-footer">
+              <span class="unit-tag">整數的運算</span>
+              <button class="btn-unit-preview" disabled>籌備中</button>
+            </div>
+          </div>
+
+          <!-- 質數館 (開放中) -->
+          <div class="unit-card active-card">
+            <div class="unit-card-header">
+              <span class="unit-icon">🎈</span>
+              <span class="unit-status active">🔥 開放練習中</span>
+            </div>
+            <h3 class="unit-title">質數館：100 以內的質數</h3>
+            <p class="unit-desc">
+              包含「質數神射手（射氣球）」與「25 質數收集館」，訓練直覺判斷 100 以內質數並背熟 25 個質數！
+            </p>
+            <div class="unit-footer">
+              <span class="unit-tag">因數與倍數</span>
+              <button class="btn-unit-enter" id="btn-enter-prime-pavilion">進入質數館 🎈</button>
+            </div>
+          </div>
+
+          <!-- 一元一次方程式 (籌備中) -->
+          <div class="unit-card">
+            <div class="unit-card-header">
+              <span class="unit-icon">⚖️</span>
+              <span class="unit-status soon">即將開放</span>
+            </div>
+            <h3 class="unit-title">一元一次方程館</h3>
+            <p class="unit-desc">等量公理天秤、移項法則與生活應用解題，化身解方程式大師！</p>
+            <div class="unit-footer">
+              <span class="unit-tag">一元一次方程式</span>
+              <button class="btn-unit-preview" disabled>籌備中</button>
+            </div>
+          </div>
+
+          <!-- 二元一次聯立與直角坐標 (籌備中) -->
+          <div class="unit-card">
+            <div class="unit-card-header">
+              <span class="unit-icon">🗺️</span>
+              <span class="unit-status soon">即將開放</span>
+            </div>
+            <h3 class="unit-title">直角坐標尋寶館</h3>
+            <p class="unit-desc">四個象限判定、二元一次方程式圖形定位，建立空間坐標數感。</p>
+            <div class="unit-footer">
+              <span class="unit-tag">二元一次聯立與圖形</span>
+              <button class="btn-unit-preview" disabled>籌備中</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 7年級專屬主題：質數館 (射氣球 + 25質數圖鑑) -->
+      <div id="grade-7-prime-pavilion" class="grade-view">
+        
+        <div class="pavilion-header">
+          <button class="btn-back-to-hub" id="btn-back-to-grade7-hub">
+            <span>← 返回七年級主題選單</span>
+          </button>
+          <div class="pavilion-title-area">
+            <span class="pavilion-badge">因數與倍數</span>
+            <h2>🏛️ 質數館（質數神射手 & 圖鑑）</h2>
+          </div>
+        </div>
+
+        <nav class="sub-tabs">
+          <button class="sub-tab-btn active" data-subtarget="balloon-view">
+            <span class="tab-icon">🎈</span>
+            <span>質數神射手 (射氣球)</span>
+          </button>
+          <button class="sub-tab-btn" data-subtarget="codex-view">
+            <span class="tab-icon">📜</span>
+            <span>25質數收集館 & 大師證書</span>
+          </button>
+        </nav>
+
+        <div id="balloon-view" class="sub-panel active">
+          <div class="game-hud">
+            <div class="hud-item">
+              <span class="hud-label">得分</span>
+              <span class="hud-value" id="balloon-score">0</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">倒數時間</span>
+              <span class="hud-value countdown" id="balloon-timer">60s</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">連擊 Combo</span>
+              <span class="hud-value combo" id="balloon-combo">0</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">剩餘生命</span>
+              <div class="hud-hearts" id="balloon-hearts">❤️❤️❤️</div>
+            </div>
+            <div class="hud-actions">
+              <button class="btn-hud-action btn-hud-change-level" id="btn-hud-change-balloon-level" title="返回更換練習範圍 (1~30, 1~60, 1~100)">
+                <span class="btn-icon">🎯</span>
+                <span>換難度範圍</span>
+              </button>
+              <button class="btn-hud-action btn-hud-restart" id="btn-hud-restart-balloon-hud" title="重新開始本局">
+                <span class="btn-icon">🔄</span>
+                <span>重新開始</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="balloon-arena-wrapper">
+            <div class="balloon-arena" id="balloon-arena">
+              
+              <!-- 頂部即時工具列 -->
+              <div class="arena-top-toolbar balloon-toolbar">
+                <div class="current-level-tag">
+                  <span class="level-indicator-dot"></span>
+                  <span id="balloon-level-name">當前難度：1~30 暖身區</span>
+                </div>
+                <div class="arena-toolbar-buttons">
+                  <button class="btn-toolbar-switch" id="btn-switch-balloon-level">
+                    <span>🎯 更換難度範圍</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="arena-overlay" id="balloon-start-overlay">
+                <div class="overlay-card">
+                  <div class="card-badge">質數館 ‧ 質數判斷</div>
+                  <h2>🎈 質數神射手</h2>
+                  <p class="game-desc">
+                    氣球正緩緩往上飄！看準數字，<strong>只點擊射擊「質數」氣球</strong>！<br>
+                    小心避開偽裝成質數的合數陷阱喔！
+                  </p>
+                  
+                  <div class="difficulty-picker">
+                    <label>選擇挑戰範圍：</label>
+                    <div class="diff-options">
+                      <button class="diff-btn active" data-range="30">
+                        <div class="diff-title">1~30 暖身區</div>
+                        <div class="diff-sub">含 10 個質數</div>
+                      </button>
+                      <button class="diff-btn" data-range="60">
+                        <div class="diff-title">1~60 進階區</div>
+                        <div class="diff-sub">含 17 個質數</div>
+                      </button>
+                      <button class="diff-btn" data-range="100">
+                        <div class="diff-title">1~100 全制霸 🔥</div>
+                        <div class="diff-sub">含 51, 87, 91 大陷阱</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <button class="btn-start-game" id="btn-start-balloon">開始挑戰 (60秒)</button>
+                </div>
+              </div>
+
+              <div class="arena-overlay hidden" id="balloon-gameover-overlay">
+                <div class="overlay-card gameover-card">
+                  <h2 id="balloon-gameover-title">🎉 挑戰結束！</h2>
+                  <div class="result-stats">
+                    <div class="stat-box">
+                      <span class="stat-num" id="balloon-final-score">0</span>
+                      <span class="stat-text">最終得分</span>
+                    </div>
+                    <div class="stat-box">
+                      <span class="stat-num" id="balloon-final-hits">0</span>
+                      <span class="stat-text">命中質數</span>
+                    </div>
+                    <div class="stat-box">
+                      <span class="stat-num" id="balloon-final-accuracy">100%</span>
+                      <span class="stat-text">準確率</span>
+                    </div>
+                  </div>
+                  <div class="wrong-review-box" id="balloon-wrong-review"></div>
+                  <div class="gameover-actions">
+                    <button class="btn-start-game" id="btn-restart-balloon">再玩一局 (同難度)</button>
+                    <button class="btn-primary-alt" id="btn-change-balloon-level-after">更換挑戰範圍 🎯</button>
+                    <button class="btn-secondary" id="btn-balloon-to-codex">查看 25 質數圖鑑</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="feedback-banner hidden" id="balloon-feedback"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="codex-view" class="sub-panel">
+          <div class="codex-container">
+            
+            <div class="codex-header-banner">
+              <div>
+                <h2>📜 100 以內的 25 個質數寶庫</h2>
+                <p>在射氣球中正確擊中質數，就能點亮對應的金幣！<strong>集齊全部 25 個質數即可解鎖榮譽證書！</strong></p>
+              </div>
+              <div class="codex-progress-badge">
+                <span class="badge-title">解鎖進度</span>
+                <span class="badge-num" id="codex-progress-text">0 / 25</span>
+              </div>
+            </div>
+
+            <div class="mnemonic-card">
+              <div class="mnemonic-title">💡 電話號碼記憶法神口訣：<strong>4 4 2 2 3 - 2 2 3 2 1</strong>（總共 25 個）</div>
+              <p class="mnemonic-sub">依十位數分組記憶，腦袋自然清晰！</p>
+            </div>
+
+            <div class="codex-groups-grid" id="codex-groups-container"></div>
+
+            <div class="certificate-section" id="cert-section">
+              <div class="cert-locked-card" id="cert-locked-state">
+                <div class="lock-shield-icon">🔒</div>
+                <h3 class="locked-title">國中數學質數全制霸大師證書（尚未解鎖）</h3>
+                <p class="locked-desc">
+                  必須把 100 以內的 <strong>25 個質數全部打過一次</strong>，才能領取專屬認證證書喔！
+                </p>
+                <div class="locked-progress-box">
+                  <div class="progress-labels">
+                    <span>收集進度：<strong id="cert-lock-progress-text">0 / 25</strong></span>
+                    <span>還差 <strong id="cert-remaining-text">25</strong> 個質數</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" id="cert-progress-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <button class="btn-go-balloon" id="btn-cert-go-play">
+                  <span>🎈 前往射氣球收集質數</span>
+                </button>
+              </div>
+
+              <div class="cert-unlocked-wrapper hidden" id="cert-unlocked-state">
+                <div class="cert-congrats-banner">
+                  <span class="banner-sparkle">✨</span>
+                  <span>恭喜！25 個質數全數收集完成！榮譽大師證書已為您正式解鎖！</span>
+                  <span class="banner-sparkle">✨</span>
+                </div>
+
+                <div class="cert-card" id="cert-printable">
+                  <div class="cert-border">
+                    <div class="cert-ribbon">🏆 榮譽認證 🏆</div>
+                    <h1 class="cert-title">國中數學質數全制霸大師證書</h1>
+                    <p class="cert-subtitle">Ru's math class ‧ Certificate of Prime Number Mastery (1-100)</p>
+                    
+                    <div class="cert-body">
+                      茲證明同學
+                      <input type="text" class="student-name-input" id="cert-student-name" placeholder="請點此輸入姓名/座號" value="優秀國中生">
+                      <br>
+                      已在 Ru's math class 質數館熟練掌握 100 以內質數篩選原則，並成功打通收集全數 25 個質數，思維敏捷、特頒此證以茲鼓勵！
+                    </div>
+
+                    <div class="cert-primes-display" id="cert-primes-list"></div>
+
+                    <div class="cert-footer">
+                      <div class="cert-meta">
+                        <span>頒發日期：<span id="cert-date">2026/10/22</span></span>
+                        <span>認證單位：Ru's math class 質數館</span>
+                      </div>
+                      <div class="cert-stamp">
+                        <span class="stamp-org">RuRuMin</span>
+                        <span class="stamp-text">合格認證</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cert-actions">
+                  <button class="btn-cert-print" id="btn-print-cert">
+                    <span class="btn-icon">🖨️</span>
+                    <span>截圖 / 列印交作業</span>
+                  </button>
+                  <button class="btn-cert-reset" id="btn-reset-progress">
+                    <span class="btn-icon">🔄</span>
+                    <span>重置圖鑑重新挑戰</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- 八年級專區 -->
+    <!-- ========================================== -->
+    <section id="grade-8" class="grade-panel">
+      
+      <!-- 8年級大廳：單元卡片選單 -->
+      <div id="grade-8-hub" class="grade-view active">
+        <div class="grade-banner">
+          <div class="grade-banner-badge">八年級課程專區</div>
+          <h2>📘 八年級數學主題挑戰館</h2>
+          <p>掌握完全平方數與根號化簡，點選「進入館別」開啟上下連連看挑戰！</p>
+        </div>
+
+        <div class="units-grid">
+          
+          <!-- 平方根館 (開放中！) -->
+          <div class="unit-card active-card">
+            <div class="unit-card-header">
+              <span class="unit-icon">🌱</span>
+              <span class="unit-status active">🔥 開放練習中</span>
+            </div>
+            <h3 class="unit-title">平方根館：完全平方數上下連連看</h3>
+            <p class="unit-desc">
+              上面是底數 $n$、下面是平方數 $n^2$！上下點選拉出發光連線，訓練看到平方數秒找出是誰的平方！
+            </p>
+            <div class="unit-footer">
+              <span class="unit-tag">平方根與畢氏定理</span>
+              <button class="btn-unit-enter" id="btn-enter-square-pavilion">進入平方根館 ⚡</button>
+            </div>
+          </div>
+
+          <!-- 乘法公式 (籌備中) -->
+          <div class="unit-card">
+            <div class="unit-card-header">
+              <span class="unit-icon">✨</span>
+              <span class="unit-status soon">即將開放</span>
+            </div>
+            <h3 class="unit-title">乘法公式連連看</h3>
+            <p class="unit-desc">$(a+b)^2$、$a^2-b^2$ 展開式速配，擺脫死背公式的煩惱！</p>
+            <div class="unit-footer">
+              <span class="unit-tag">乘法公式與多項式</span>
+              <button class="btn-unit-preview" disabled>籌備中</button>
+            </div>
+          </div>
+
+          <!-- 因式分解 (籌備中) -->
+          <div class="unit-card">
+            <div class="unit-card-header">
+              <span class="unit-icon">🧩</span>
+              <span class="unit-status soon">即將開放</span>
+            </div>
+            <h3 class="unit-title">因式分解拼圖大師</h3>
+            <p class="unit-desc">十字交乘法與提出公因式趣味解題，輕鬆破解二次多項式！</p>
+            <div class="unit-footer">
+              <span class="unit-tag">因式分解</span>
+              <button class="btn-unit-preview" disabled>籌備中</button>
+            </div>
+          </div>
+
+          <!-- 一元二次方程式 (籌備中) -->
+          <div class="unit-card">
+            <div class="unit-card-header">
+              <span class="unit-icon">🎯</span>
+              <span class="unit-status soon">即將開放</span>
+            </div>
+            <h3 class="unit-title">一元二次方程式天秤</h3>
+            <p class="unit-desc">配方法與公式解互動模擬，動態可視化找出方程式的兩根。</p>
+            <div class="unit-footer">
+              <span class="unit-tag">一元二次方程式</span>
+              <button class="btn-unit-preview" disabled>籌備中</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 8年級專屬主題：平方根館 (上面 n ⟷ 下面 n² 上下連連看) -->
+      <div id="grade-8-square-pavilion" class="grade-view">
+        
+        <div class="pavilion-header">
+          <button class="btn-back-to-hub" id="btn-back-to-grade8-hub">
+            <span>← 返回八年級主題選單</span>
+          </button>
+          <div class="pavilion-title-area">
+            <span class="pavilion-badge">平方根與畢氏定理</span>
+            <h2>🏛️ 平方根館（上底數 n ⟷ 下平方 n² 連連看）</h2>
+          </div>
+        </div>
+
+        <nav class="sub-tabs">
+          <button class="sub-tab-btn active" data-subtarget="card-view">
+            <span class="tab-icon">⚡</span>
+            <span>完全平方數上下連連看</span>
+          </button>
+          <button class="sub-tab-btn" data-subtarget="square-codex-view">
+            <span class="tab-icon">📜</span>
+            <span>完全平方數圖鑑 & 證書</span>
+          </button>
+        </nav>
+
+        <!-- 八年級內容 1：上下連連看遊戲 -->
+        <div id="card-view" class="sub-panel active">
+          
+          <div class="game-hud">
+            <div class="hud-item">
+              <span class="hud-label">連線進度</span>
+              <span class="hud-value" id="card-matched-count">0 / 8</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">嘗試次數</span>
+              <span class="hud-value" id="card-flip-moves">0</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">連線秒數</span>
+              <span class="hud-value countdown" id="card-timer">0s</span>
+            </div>
+            <div class="hud-item">
+              <span class="hud-label">連擊 Combo</span>
+              <span class="hud-value combo" id="card-combo">0</span>
+            </div>
+            <div class="hud-actions">
+              <button class="btn-hud-action btn-hud-change-level" id="btn-hud-change-card-level" title="返回選擇其他關卡範圍 (11~16, 11~20, 11~25, 11~32)">
+                <span class="btn-icon">🎯</span>
+                <span>換關卡難度</span>
+              </button>
+              <button class="btn-hud-action btn-hud-restart" id="btn-hud-restart-card" title="重新洗牌當前關卡">
+                <span class="btn-icon">🔄</span>
+                <span>重新洗牌</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="dual-match-wrapper">
+            <div class="dual-match-arena top-bottom-arena" id="dual-arena">
+              
+              <!-- 動態連線 SVG 畫布 (描繪發光連線) -->
+              <svg class="match-svg-canvas" id="match-svg-canvas"></svg>
+
+              <!-- 開始設定覆蓋層 -->
+              <div class="arena-overlay" id="card-start-overlay">
+                <div class="overlay-card">
+                  <div class="card-badge">八年級單元 ‧ 平方根</div>
+                  <h2>⚡ 完全平方數上下連連看</h2>
+                  <p class="game-desc">
+                    <strong>上面是「底數 $n$」，下面是「平方數 $n^2$」！</strong><br>
+                    可以先點上面的底數連到下方平方數；也可以<strong>看下方的平方數（如 $529$）秒連回上方是誰的平方（$23$）</strong>！
+                  </p>
+                  
+                  <div class="difficulty-picker">
+                    <label>選擇練習範圍：</label>
+                    <div class="diff-options">
+                      <button class="diff-btn-square active" data-level="warmup">
+                        <div class="diff-title">11~16 暖身區</div>
+                        <div class="diff-sub">共 6 組連線</div>
+                      </button>
+                      <button class="diff-btn-square" data-level="core">
+                        <div class="diff-title">11~20 核心區</div>
+                        <div class="diff-sub">共 10 組連線</div>
+                      </button>
+                      <button class="diff-btn-square" data-level="target">
+                        <div class="diff-title">11~25 精熟目標 🔥</div>
+                        <div class="diff-sub">背到 25！(共 15 組)</div>
+                      </button>
+                      <button class="diff-btn-square" data-level="master">
+                        <div class="diff-title">11~32 王者挑</div>
+                        <div class="diff-sub">進階高手 (共 22 組)</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <button class="btn-start-game" id="btn-start-card-game">開始連連看挑戰</button>
+                </div>
+              </div>
+
+              <!-- 遊戲結束結算覆蓋層 -->
+              <div class="arena-overlay hidden" id="card-gameover-overlay">
+                <div class="overlay-card gameover-card">
+                  <h2>🎉 恭喜上下全數連線成功！</h2>
+                  <div class="result-stats">
+                    <div class="stat-box">
+                      <span class="stat-num" id="card-final-time">0s</span>
+                      <span class="stat-text">通關時間</span>
+                    </div>
+                    <div class="stat-box">
+                      <span class="stat-num" id="card-final-moves">0</span>
+                      <span class="stat-text">嘗試次數</span>
+                    </div>
+                    <div class="stat-box">
+                      <span class="stat-num" id="card-final-stars">⭐⭐⭐</span>
+                      <span class="stat-text">連線評星</span>
+                    </div>
+                  </div>
+                  <div class="gameover-actions">
+                    <button class="btn-start-game" id="btn-restart-card-game">再玩一局 (同關卡)</button>
+                    <button class="btn-primary-alt" id="btn-change-card-level-after">更換其他關卡 🎯</button>
+                    <button class="btn-secondary" id="btn-card-to-codex">查看平方數圖鑑</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 即時提示橫條 -->
+              <div class="feedback-banner hidden" id="card-feedback"></div>
+
+              <!-- 上下分層連連看容器 -->
+              <div class="top-bottom-container">
+                
+                <!-- 頂部即時關卡工具列 (隨時換關卡) -->
+                <div class="arena-top-toolbar square-toolbar">
+                  <div class="current-level-tag">
+                    <span class="level-indicator-dot"></span>
+                    <span id="card-level-name">當前關卡：11~16 暖身區 (6 組)</span>
+                  </div>
+                  <div class="arena-toolbar-buttons">
+                    <button class="btn-toolbar-switch" id="btn-switch-card-level" title="切換練習範圍">
+                      <span>🎯 換關卡 (11~20 / 11~25 / 11~32)</span>
+                    </button>
+                    <button class="btn-toolbar-reset" id="btn-reset-card-level" title="重新打亂洗牌">
+                      <span>🔄 重新洗牌</span>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- 上層：底數 n 區 -->
+                <div class="layer-section base-layer">
+                  <div class="layer-header-pill base-pill">
+                    <span class="layer-icon">🔹</span>
+                    <span class="layer-title">上方：底數區 (n)</span>
+                    <span class="layer-tip">點選底數，連到下方平方數</span>
+                  </div>
+                  <div class="layer-cards-row" id="grid-base-cards">
+                    <!-- 上排卡片由 JS 動態生成 -->
+                  </div>
+                </div>
+
+                <!-- 中間連線通道高度空間 (給 SVG 繪製優美連線) -->
+                <div class="connection-lane">
+                  <div class="lane-hint">⚡ 點選上方與下方進行發光連線 ⚡</div>
+                </div>
+
+                <!-- 下層：平方數 n² 區 -->
+                <div class="layer-section square-layer">
+                  <div class="layer-header-pill square-pill">
+                    <span class="layer-icon">🔸</span>
+                    <span class="layer-title">下方：完全平方數區 (n²)</span>
+                    <span class="layer-tip">看平方數，秒連回是誰的平方！</span>
+                  </div>
+                  <div class="layer-cards-row" id="grid-square-cards">
+                    <!-- 下排卡片由 JS 動態生成 -->
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 八年級內容 2：完全平方數圖鑑與證書 -->
+        <div id="square-codex-view" class="sub-panel">
+          <div class="codex-container">
+            
+            <div class="codex-header-banner">
+              <div>
+                <h2>📜 八年級完全平方數寶庫 (11² ~ 25²)</h2>
+                <p>連線成功即可點亮對應平方寶石！<strong>集齊 11~25（共 15 組）即可解鎖八年級大師證書！</strong></p>
+              </div>
+              <div class="codex-progress-badge">
+                <span class="badge-title">解鎖進度</span>
+                <span class="badge-num" id="square-codex-progress-text">0 / 15</span>
+              </div>
+            </div>
+
+            <div class="mnemonic-card">
+              <div class="mnemonic-title">💡 雙向速記秘笈：<strong>尾數判斷與夾擠法</strong></div>
+              <p class="mnemonic-sub">
+                • 尾數看個位：尾數是 9，底數只能是 3 或 7（因為 3²=9, 7²=49）！<br>
+                • 顛倒雙胞胎：13² = <strong>169</strong>，14² = <strong>196</strong>（後面兩位 69 與 96 剛好對調）！<br>
+                • 20 幾夾擠：20²=400, 30²=900，所以 500 多的一定是二十幾！
+              </p>
+            </div>
+
+            <div class="square-groups-grid" id="square-groups-container"></div>
+
+            <div class="certificate-section" id="square-cert-section">
+              
+              <div class="cert-locked-card" id="square-cert-locked-state">
+                <div class="lock-shield-icon">🔒</div>
+                <h3 class="locked-title">八年級完全平方數大師證書（尚未解鎖）</h3>
+                <p class="locked-desc">
+                  必須在上下連連看中將 <strong>11 ~ 25（共 15 組平方數）全數成功連線過</strong>，才能領取專屬榮譽證書喔！
+                </p>
+                <div class="locked-progress-box">
+                  <div class="progress-labels">
+                    <span>收集進度：<strong id="square-cert-progress-text">0 / 15</strong></span>
+                    <span>還差 <strong id="square-cert-remaining-text">15</strong> 組平方數</span>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" id="square-cert-progress-bar" style="width: 0%"></div>
+                  </div>
+                </div>
+                <button class="btn-go-balloon" id="btn-square-go-play">
+                  <span>⚡ 前往完全平方數連連看</span>
+                </button>
+              </div>
+
+              <div class="cert-unlocked-wrapper hidden" id="square-cert-unlocked-state">
+                <div class="cert-congrats-banner">
+                  <span class="banner-sparkle">✨</span>
+                  <span>太棒了！11~25 完全平方數已全數精熟掌握！大師證書為您正式頒發！</span>
+                  <span class="banner-sparkle">✨</span>
+                </div>
+
+                <div class="cert-card" id="square-cert-printable">
+                  <div class="cert-border">
+                    <div class="cert-ribbon">🏆 榮譽認證 🏆</div>
+                    <h1 class="cert-title">國中數學完全平方數大師證書</h1>
+                    <p class="cert-subtitle">Ru's math class ‧ Certificate of Perfect Squares Mastery (11² - 25²)</p>
+                    
+                    <div class="cert-body">
+                      茲證明同學
+                      <input type="text" class="student-name-input" id="square-student-name" placeholder="請點此輸入姓名/座號" value="優秀國中生">
+                      <br>
+                      已在 Ru's math class 平方根館熟練掌握 11 至 25 之完全平方數雙向轉換（$n \leftrightarrow n^2$），計算迅捷、特頒此證以茲鼓勵！
+                    </div>
+
+                    <div class="cert-squares-display" id="square-cert-list"></div>
+
+                    <div class="cert-footer">
+                      <div class="cert-meta">
+                        <span>頒發日期：<span id="square-cert-date">2026/10/22</span></span>
+                        <span>認證單位：Ru's math class 平方根館</span>
+                      </div>
+                      <div class="cert-stamp">
+                        <span class="stamp-org">RuRuMin</span>
+                        <span class="stamp-text">合格認證</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="cert-actions">
+                  <button class="btn-cert-print" id="btn-print-square-cert">
+                    <span class="btn-icon">🖨️</span>
+                    <span>截圖 / 列印交作業</span>
+                  </button>
+                  <button class="btn-cert-reset" id="btn-reset-square-progress">
+                    <span class="btn-icon">🔄</span>
+                    <span>重置圖鑑重新挑戰</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==================== 彈窗：通用秘笈 ==================== -->
+  <div class="modal-backdrop hidden" id="modal-guide">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-guide-title">💡 數學快篩與速記秘笈</h3>
+        <button class="modal-close" id="btn-close-guide">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-guide-body"></div>
+      <div class="modal-footer">
+        <button class="btn-primary" id="btn-guide-ok">我記住了，去挑戰！</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
