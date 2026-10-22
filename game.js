@@ -1003,6 +1003,13 @@ const dualMatchGame = {
         this.updateAllLines();
       }
     });
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        if (this.matchedPairs.length > 0) {
+          this.updateAllLines();
+        }
+      }, 150);
+    });
   },
 
   openLevelPicker() {
