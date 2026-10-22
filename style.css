@@ -1266,13 +1266,16 @@ body {
 .arena-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(15, 23, 42, 0.78);
   backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 80;
   padding: 20px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .arena-overlay.hidden {
@@ -1288,6 +1291,10 @@ body {
   text-align: center;
   box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
   animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin: auto 0;
+  max-height: calc(100% - 16px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes scaleIn {
@@ -2402,18 +2409,6 @@ body {
 }
 
 @media (max-width: 640px) {
-  .app-header {
-    flex-direction: column;
-    gap: 10px;
-    padding: 12px 16px;
-  }
-  .header-actions {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .balloon-arena {
-    height: 440px;
-  }
   .layer-cards-row {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -3383,34 +3378,275 @@ body {
   }
 }
 
+/* ==========================================================================
+   手機與行動裝置深度適配 (Mobile Responsive Layout)
+   ========================================================================== */
 @media (max-width: 840px) {
+  /* 1. 頂部導航列：標題與喇叭同一行、三大按鈕置於下方全寬並排 */
   .app-header {
+    display: flex;
     flex-wrap: wrap;
-    padding: 10px 16px;
-    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    gap: 8px 0;
   }
+
   .logo-area {
     order: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
   }
+
+  .logo-icon {
+    font-size: 1.4rem;
+    padding: 6px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .logo-title {
+    font-size: 1.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 手機版隱藏超長副標題，讓標題與喇叭音效開關俐落並排在第一行 */
+  .logo-subtitle {
+    display: none;
+  }
+
   .header-actions {
     order: 2;
+    flex-shrink: 0;
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
   }
+
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1.15rem;
+  }
+
   .grade-nav {
     order: 3;
     width: 100%;
-    margin: 4px 0 0;
+    margin: 6px 0 0;
     max-width: 100%;
-    gap: 8px;
+    display: flex;
+    gap: 6px;
   }
+
   .grade-btn {
     flex: 1;
-    padding: 8px 10px;
+    min-width: 0;
+    padding: 8px 4px;
+    gap: 4px;
+    justify-content: center;
   }
+
   .grade-btn .grade-emoji {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
+    flex-shrink: 0;
   }
+
   .grade-text {
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  /* 2. 主內容區縮小外邊距，大幅提升可用遊戲寬度 */
+  .main-content {
+    padding: 10px 8px 32px;
+  }
+
+  /* 3. 七年級射氣球遊戲框優化：放大視野高度、避免氣球擠壓 */
+  .balloon-arena-wrapper {
+    border-width: 3px;
+    border-radius: 20px;
+  }
+
+  .balloon-arena {
+    height: clamp(480px, 66vh, 580px);
+  }
+
+  .balloon {
+    width: 74px;
+    height: 92px;
+    font-size: 1.55rem;
+  }
+
+  /* 4. 八年級連連看遊戲框優化：加大卡片與操作舒適度 */
+  .dual-match-wrapper {
+    border-width: 3px;
+    border-radius: 20px;
+  }
+
+  .top-bottom-arena {
+    min-height: 520px;
+    padding: 12px 6px;
+  }
+
+  /* 八年級左右模式下優化 */
+  .top-bottom-container.side-by-side-mode .layer-section {
+    padding: 8px 5px;
+    border-radius: 14px;
+  }
+
+  .top-bottom-container.side-by-side-mode .connection-lane {
+    width: 18px;
+    min-height: 220px;
+  }
+
+  .top-bottom-container.side-by-side-mode .lane-hint {
+    font-size: 0.62rem;
+    letter-spacing: 2px;
+    padding: 8px 2px;
+  }
+
+  .top-bottom-container.side-by-side-mode .layer-cards-row {
+    grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+    gap: 6px;
+  }
+
+  .top-bottom-container.side-by-side-mode .match-card {
+    height: 62px;
+    border-radius: 12px;
+  }
+
+  .top-bottom-container.side-by-side-mode .match-card .card-value {
+    font-size: 1.28rem;
+  }
+
+  /* 八年級上下模式下優化 */
+  .connection-lane {
+    height: 40px;
+  }
+
+  .match-card {
+    height: 68px;
+  }
+
+  .match-card .card-value {
+    font-size: 1.45rem;
+  }
+
+  /* 5. 結算彈窗與覆蓋層：保證滾動自如、避免最後版面被卡住 */
+  .arena-overlay {
+    padding: 12px 8px;
+  }
+
+  .overlay-card {
+    padding: 18px 14px;
+    border-radius: 20px;
+    max-height: calc(100% - 12px);
+    margin: auto 0;
+  }
+
+  .overlay-card h2 {
+    font-size: 1.35rem;
+    margin-bottom: 6px;
+  }
+
+  .overlay-card .game-desc {
+    font-size: 0.82rem;
+    margin-bottom: 12px;
+  }
+
+  .diff-options {
+    gap: 6px;
+  }
+
+  .diff-btn, .diff-btn-square {
+    padding: 8px 6px;
+    border-radius: 12px;
+  }
+
+  .diff-title {
+    font-size: 0.82rem;
+  }
+
+  .diff-sub {
+    font-size: 0.68rem;
+  }
+
+  .btn-start-game {
+    padding: 11px 18px;
+    font-size: 1rem;
+    border-radius: 14px;
+  }
+
+  .result-stats {
+    margin: 10px 0;
+    padding: 10px 8px;
+    gap: 6px;
+  }
+
+  .stat-num {
+    font-size: 1.45rem;
+  }
+
+  .stat-text {
+    font-size: 0.7rem;
+  }
+
+  .leaderboard-submit-box {
+    margin: 8px 0;
+    padding: 10px 12px;
+  }
+
+  .submit-box-title {
     font-size: 0.88rem;
+  }
+
+  .submit-box-desc {
+    font-size: 0.72rem;
+    margin-bottom: 6px;
+  }
+
+  .leaderboard-input {
+    font-size: 0.85rem;
+    padding: 7px 10px;
+  }
+
+  .btn-submit-score {
+    padding: 7px 12px;
+    font-size: 0.85rem;
+  }
+
+  .wrong-review-box {
+    max-height: 80px;
+    margin-bottom: 10px;
+    font-size: 0.78rem;
+  }
+
+  /* 4 個按鈕採 2x2 雙列網格，大幅節省高度，完全不截斷 */
+  .gameover-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .gameover-actions .btn-start-game,
+  .gameover-actions .btn-primary-alt,
+  .gameover-actions .btn-secondary {
+    flex: none;
+    max-width: none;
+    width: 100%;
+    padding: 10px 6px;
+    font-size: 0.82rem;
+    border-radius: 12px;
+    justify-content: center;
+    white-space: nowrap;
   }
 }
 

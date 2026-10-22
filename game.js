@@ -382,6 +382,8 @@ function setupGrade7Leaderboard() {
   const btnToLeaderboard = document.getElementById('btn-balloon-to-leaderboard');
   if (btnToLeaderboard) {
     btnToLeaderboard.addEventListener('click', () => {
+      const overlay = document.getElementById('balloon-gameover-overlay');
+      if (overlay) overlay.classList.add('hidden');
       document.querySelector('#grade-7-prime-pavilion .sub-tab-btn[data-subtarget="prime-leaderboard-view"]').click();
     });
   }
@@ -563,6 +565,8 @@ function setupGrade8Leaderboard() {
   const btnToLeaderboard = document.getElementById('btn-card-to-leaderboard');
   if (btnToLeaderboard) {
     btnToLeaderboard.addEventListener('click', () => {
+      const overlay = document.getElementById('card-gameover-overlay');
+      if (overlay) overlay.classList.add('hidden');
       document.querySelector('#grade-8-square-pavilion .sub-tab-btn[data-subtarget="square-leaderboard-view"]').click();
     });
   }
@@ -1211,6 +1215,8 @@ const balloonGame = {
     document.getElementById('btn-start-balloon').addEventListener('click', () => this.startGame());
     document.getElementById('btn-restart-balloon').addEventListener('click', () => this.startGame());
     document.getElementById('btn-balloon-to-codex').addEventListener('click', () => {
+      const overlay = document.getElementById('balloon-gameover-overlay');
+      if (overlay) overlay.classList.add('hidden');
       document.querySelector('#grade-7-prime-pavilion .sub-tab-btn[data-subtarget="codex-view"]').click();
       renderPrimeCodex();
       updateHeaderAndCodexUI();
@@ -1598,6 +1604,8 @@ const dualMatchGame = {
     document.getElementById('btn-start-card-game').addEventListener('click', () => this.startGame());
     document.getElementById('btn-restart-card-game').addEventListener('click', () => this.startGame());
     document.getElementById('btn-card-to-codex').addEventListener('click', () => {
+      const overlay = document.getElementById('card-gameover-overlay');
+      if (overlay) overlay.classList.add('hidden');
       document.querySelector('#grade-8-square-pavilion .sub-tab-btn[data-subtarget="square-codex-view"]').click();
       renderSquareCodex();
       updateHeaderAndCodexUI();
