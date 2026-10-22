@@ -200,11 +200,16 @@ function getUnlockedPrimes() {
 }
 
 function saveUnlockedPrime(p) {
-  if (!PRIME_SET.has(p)) return;
+  const numVal = parseInt(p, 10);
+  if (!PRIME_SET.has(numVal)) return;
   const current = getUnlockedPrimes();
   const prevSize = current.size;
-  current.add(p);
-  localStorage.setItem(KEY_PRIMES, JSON.stringify(Array.from(current)));
+  current.add(numVal);
+  try {
+    localStorage.setItem(KEY_PRIMES, JSON.stringify(Array.from(current)));
+  } catch (e) {
+    console.warn('儲存質數失敗:', e);
+  }
   updateHeaderAndCodexUI();
 
   if (prevSize < 25 && current.size === 25) {
@@ -223,10 +228,15 @@ function getUnlockedSquares() {
 }
 
 function saveUnlockedSquare(base) {
+  const baseVal = parseInt(base, 10);
   const current = getUnlockedSquares();
   const prevSize = current.size;
-  current.add(base);
-  localStorage.setItem(KEY_SQUARES, JSON.stringify(Array.from(current)));
+  current.add(baseVal);
+  try {
+    localStorage.setItem(KEY_SQUARES, JSON.stringify(Array.from(current)));
+  } catch (e) {
+    console.warn('儲存平方數失敗:', e);
+  }
   updateHeaderAndCodexUI();
 
   if (prevSize < 15 && current.size >= 15) {
@@ -307,6 +317,8 @@ function setupPavilionNavigation() {
     btnEnterPrime.addEventListener('click', () => {
       grade7Hub.classList.remove('active');
       grade7Pavilion.classList.add('active');
+      renderPrimeCodex();
+      updateHeaderAndCodexUI();
     });
   }
   if (btnBackGrade7 && grade7Hub && grade7Pavilion) {
@@ -327,6 +339,8 @@ function setupPavilionNavigation() {
     btnEnterSquare.addEventListener('click', () => {
       grade8Hub.classList.remove('active');
       grade8Pavilion.classList.add('active');
+      renderSquareCodex();
+      updateHeaderAndCodexUI();
     });
   }
   if (btnBackGrade8 && grade8Hub && grade8Pavilion) {
@@ -357,6 +371,15 @@ function setupSubTabs() {
       if (panel) panel.classList.add('active');
 
       if (target !== 'balloon-view' && balloonGame.isRunning) balloonGame.endGame(false);
+
+      // 切換至圖鑑或證書分頁時，即時重新讀取儲存並刷新畫面
+      if (target === 'codex-view') {
+        renderPrimeCodex();
+        updateHeaderAndCodexUI();
+      } else if (target === 'square-codex-view') {
+        renderSquareCodex();
+        updateHeaderAndCodexUI();
+      }
     });
   });
 
@@ -413,7 +436,7 @@ function setupModals() {
         <p class="guide-intro">看到完全平方數，如何秒認出是誰的平方？記住這 3 招：</p>
         <div class="guide-step-card"><div class="step-num">秘笈 1</div><div class="step-content"><h4>顛倒雙胞胎：13² 與 14²</h4><p>13² = <strong>169</strong>，14² = <strong>196</strong>（末兩位 69 與 96 對調！）。</p></div></div>
         <div class="guide-step-card"><div class="step-num">秘笈 2</div><div class="step-content"><h4>尾數鎖定法：看平方數個位數</h4><p>• 尾數是 <strong>9</strong>：底數個位必為 3 或 7（3²=9, 7²=49）<br>• 尾數是 <strong>6</strong>：底數個位必為 4 或 6（4²=16, 6²=36）<br>• 尾數是 <strong>4</strong>：底數個位必為 2 或 8（2²=4, 8²=64）</p></div></div>
-        <div class="guide-step-card"><div class="step-num">秘笈 3</div><div class="step-content"><h4>十位數夾擠法：鎖定範圍</h4><p>例如看到 <strong>529</strong>：<br>20² = 400，30² = 900，所以一定是二十幾！<br>尾數是 9 $\\rightarrow$ 是 23 還是 27？因為 529 靠近 400，所以答案秒殺是 <strong>23</strong>！</p></div></div>
+        <div class="guide-step-card"><div class="step-num">秘笈 3</div><div class="step-content"><h4>十位數夾擠法：鎖定範圍</h4><p>例如看到 <strong>529</strong>：<br>20² = 400，30² = 900，所以一定是二十幾！<br>尾數是 9 ➔ 是 23 還是 27？因為 529 靠近 400，所以答案秒殺是 <strong>23</strong>！</p></div></div>
         <div class="guide-summary-box">✨ 熟背 11~25 的平方，國二數學計算快三倍！</div>
       `;
     }
@@ -451,10 +474,12 @@ function updateHeaderAndCodexUI() {
   const unlockedSquares = getUnlockedSquares();
 
   const countEl = document.getElementById('header-codex-count');
-  if (activeGrade === 'grade-7') {
-    countEl.textContent = `${unlockedPrimes.size}/25`;
-  } else {
-    countEl.textContent = `${unlockedSquares.size}/15`;
+  if (countEl) {
+    if (activeGrade === 'grade-7') {
+      countEl.textContent = `${unlockedPrimes.size}/25`;
+    } else {
+      countEl.textContent = `${unlockedSquares.size}/15`;
+    }
   }
 
   document.querySelectorAll('.prime-coin').forEach(coin => {
@@ -588,6 +613,8 @@ const balloonGame = {
     document.getElementById('btn-restart-balloon').addEventListener('click', () => this.startGame());
     document.getElementById('btn-balloon-to-codex').addEventListener('click', () => {
       document.querySelector('#grade-7-prime-pavilion .sub-tab-btn[data-subtarget="codex-view"]').click();
+      renderPrimeCodex();
+      updateHeaderAndCodexUI();
     });
 
     // 換難度按鈕 (HUD 與工具列)
@@ -738,8 +765,12 @@ const balloonGame = {
       this.score += gained;
       sound.playHit();
       this.showFloatText(`+${gained} 質數！`, x, y, '#10b981');
+      try {
+        saveUnlockedPrime(num);
+      } catch (err) {
+        console.warn('儲存質數失敗:', err);
+      }
       showGlobalFeedback(`🎯 答對！${num} 是質數！`, 'success', this.arena);
-      saveUnlockedPrime(num);
     } else {
       this.combo = 0;
       this.hearts--;
@@ -777,6 +808,7 @@ const balloonGame = {
     clearInterval(this.timerInterval);
     clearInterval(this.spawnInterval);
     this.cleanAllBalloons();
+    updateHeaderAndCodexUI();
 
     if (!showModal) return;
     sound.playFanfare();
@@ -945,6 +977,8 @@ const dualMatchGame = {
     document.getElementById('btn-restart-card-game').addEventListener('click', () => this.startGame());
     document.getElementById('btn-card-to-codex').addEventListener('click', () => {
       document.querySelector('#grade-8-square-pavilion .sub-tab-btn[data-subtarget="square-codex-view"]').click();
+      renderSquareCodex();
+      updateHeaderAndCodexUI();
     });
 
     // 換關卡按鈕監聽 (HUD、頂部工具列、結算覆蓋層)
@@ -1177,7 +1211,11 @@ const dualMatchGame = {
       showGlobalFeedback(`🎯 賓果！${baseFromTop}² = ${squareVal}（√${squareVal} = ${baseFromTop}）`, 'success', this.arena);
 
       // 存入八年級完全平方數進度
-      saveUnlockedSquare(baseFromTop);
+      try {
+        saveUnlockedSquare(baseFromTop);
+      } catch (err) {
+        console.warn('儲存進度時發生例外:', err);
+      }
 
       this.selectedBaseEl = null;
       this.selectedSquareEl = null;
@@ -1271,6 +1309,7 @@ const dualMatchGame = {
 
   gameWin() {
     this.stopTimer();
+    updateHeaderAndCodexUI();
     sound.playFanfare();
 
     const overlay = document.getElementById('card-gameover-overlay');
