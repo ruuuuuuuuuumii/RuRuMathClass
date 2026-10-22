@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ru's math class - 國中數學自主練習平台</title>
-  <link rel="stylesheet" href="style.css?v=2.3">
+  <link rel="stylesheet" href="style.css?v=2.8">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -74,7 +74,7 @@
           </div>
 
           <!-- 質數館 (開放中) -->
-          <div class="unit-card active-card">
+          <div class="unit-card active-card" id="card-enter-prime-pavilion" role="button" tabindex="0" title="點擊直接進入質數館">
             <div class="unit-card-header">
               <span class="unit-icon">🎈</span>
               <span class="unit-status active">🔥 開放練習中</span>
@@ -85,7 +85,7 @@
             </p>
             <div class="unit-footer">
               <span class="unit-tag">因數與倍數</span>
-              <button class="btn-unit-enter" id="btn-enter-prime-pavilion">進入質數館 🎈</button>
+              <span class="unit-enter-pill">直接點擊進入 ➔</span>
             </div>
           </div>
 
@@ -141,6 +141,10 @@
           <button class="sub-tab-btn" data-subtarget="codex-view">
             <span class="tab-icon">📜</span>
             <span>25質數收集館 & 大師證書</span>
+          </button>
+          <button class="sub-tab-btn" data-subtarget="prime-leaderboard-view">
+            <span class="tab-icon">🏆</span>
+            <span>神射手英雄榜</span>
           </button>
         </nav>
 
@@ -238,10 +242,26 @@
                       <span class="stat-text">準確率</span>
                     </div>
                   </div>
+
+                  <!-- 登錄英雄榜區域 (自由選填) -->
+                  <div class="leaderboard-submit-box" id="balloon-leaderboard-submit-box">
+                    <div class="submit-box-header">
+                      <span class="submit-icon">🏆</span>
+                      <span class="submit-title">登錄質數神射手英雄榜</span>
+                      <span class="submit-tip">（自由選填）</span>
+                    </div>
+                    <div class="submit-input-group">
+                      <input type="text" id="balloon-player-name" class="submit-name-input" placeholder="請輸入姓名或座號" maxlength="15">
+                      <button type="button" class="btn-submit-score" id="btn-submit-balloon-score">登錄榜單 🏆</button>
+                    </div>
+                    <div class="submit-status-msg hidden" id="balloon-submit-msg"></div>
+                  </div>
+
                   <div class="wrong-review-box" id="balloon-wrong-review"></div>
                   <div class="gameover-actions">
                     <button class="btn-start-game" id="btn-restart-balloon">再玩一局 (同難度)</button>
                     <button class="btn-primary-alt" id="btn-change-balloon-level-after">更換挑戰範圍 🎯</button>
+                    <button class="btn-secondary" id="btn-balloon-to-leaderboard">查看英雄榜 🏆</button>
                     <button class="btn-secondary" id="btn-balloon-to-codex">查看 25 質數圖鑑</button>
                   </div>
                 </div>
@@ -346,6 +366,57 @@
           </div>
         </div>
 
+        <!-- 七年級內容 3：神射手英雄榜 -->
+        <div id="prime-leaderboard-view" class="sub-panel">
+          <div class="leaderboard-container">
+            <div class="leaderboard-header-banner">
+              <div class="leaderboard-banner-info">
+                <h2>🏆 質數神射手榮譽英雄榜</h2>
+                <p>比比看誰能在 60 秒內擊中最多質數、避開合數陷阱拿下最高分！</p>
+              </div>
+              <div class="leaderboard-banner-badge">
+                <span class="badge-icon">🎯</span>
+                <span class="badge-text">以得分與準確率排序</span>
+              </div>
+            </div>
+
+            <div class="leaderboard-filter-bar">
+              <div class="filter-label">篩選挑戰範圍：</div>
+              <div class="filter-pills" id="prime-leaderboard-filters">
+                <button class="filter-pill active" data-filter="all">全部範圍</button>
+                <button class="filter-pill" data-filter="30">1~30 暖身區</button>
+                <button class="filter-pill" data-filter="60">1~60 進階區</button>
+                <button class="filter-pill" data-filter="100">1~100 全制霸</button>
+              </div>
+              <button class="btn-clear-leaderboard" id="btn-clear-prime-leaderboard" title="清空本機排行榜紀錄">
+                <span>🗑️ 清除紀錄</span>
+              </button>
+            </div>
+
+            <div class="leaderboard-table-wrapper">
+              <table class="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th class="th-rank">名次</th>
+                    <th class="th-name">挑戰者</th>
+                    <th class="th-score">得分</th>
+                    <th class="th-range">難度範圍</th>
+                    <th class="th-date">挑戰時間</th>
+                  </tr>
+                </thead>
+                <tbody id="prime-leaderboard-body">
+                  <!-- 動態載入榜單資料 -->
+                </tbody>
+              </table>
+              <div class="leaderboard-empty hidden" id="prime-leaderboard-empty">
+                <span class="empty-icon">🎈</span>
+                <p>目前尚無挑戰紀錄！快前往「質數神射手」挑戰，結算後輸入名字登錄第一位英雄！</p>
+                <button class="btn-primary" id="btn-go-balloon-from-leaderboard">前往射氣球挑戰</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </section>
@@ -366,7 +437,7 @@
         <div class="units-grid">
           
           <!-- 平方根館 (開放中！) -->
-          <div class="unit-card active-card">
+          <div class="unit-card active-card" id="card-enter-square-pavilion" role="button" tabindex="0" title="點擊直接進入平方根館">
             <div class="unit-card-header">
               <span class="unit-icon">🌱</span>
               <span class="unit-status active">🔥 開放練習中</span>
@@ -377,7 +448,7 @@
             </p>
             <div class="unit-footer">
               <span class="unit-tag">平方根與畢氏定理</span>
-              <button class="btn-unit-enter" id="btn-enter-square-pavilion">進入平方根館 ⚡</button>
+              <span class="unit-enter-pill">直接點擊進入 ➔</span>
             </div>
           </div>
 
@@ -447,6 +518,10 @@
           <button class="sub-tab-btn" data-subtarget="square-codex-view">
             <span class="tab-icon">📜</span>
             <span>完全平方數圖鑑 & 證書</span>
+          </button>
+          <button class="sub-tab-btn" data-subtarget="square-leaderboard-view">
+            <span class="tab-icon">⏱️</span>
+            <span>極速秒殺榜</span>
           </button>
         </nav>
 
@@ -542,9 +617,25 @@
                       <span class="stat-text">連線評星</span>
                     </div>
                   </div>
+
+                  <!-- 登錄極速榜區域 (自由選填) -->
+                  <div class="leaderboard-submit-box" id="card-leaderboard-submit-box">
+                    <div class="submit-box-header">
+                      <span class="submit-icon">⚡</span>
+                      <span class="submit-title">登錄完全平方數極速秒殺榜</span>
+                      <span class="submit-tip">（自由選填）</span>
+                    </div>
+                    <div class="submit-input-group">
+                      <input type="text" id="card-player-name" class="submit-name-input" placeholder="請輸入姓名或座號" maxlength="15">
+                      <button type="button" class="btn-submit-score" id="btn-submit-card-score">登錄極速榜 ⚡</button>
+                    </div>
+                    <div class="submit-status-msg hidden" id="card-submit-msg"></div>
+                  </div>
+
                   <div class="gameover-actions">
                     <button class="btn-start-game" id="btn-restart-card-game">再玩一局 (同關卡)</button>
                     <button class="btn-primary-alt" id="btn-change-card-level-after">更換其他關卡 🎯</button>
+                    <button class="btn-secondary" id="btn-card-to-leaderboard">查看極速榜 ⏱️</button>
                     <button class="btn-secondary" id="btn-card-to-codex">查看平方數圖鑑</button>
                   </div>
                 </div>
@@ -563,6 +654,9 @@
                     <span id="card-level-name">當前關卡：11~16 暖身區 (6 組)</span>
                   </div>
                   <div class="arena-toolbar-buttons">
+                    <button class="btn-toolbar-layout" id="btn-toggle-card-layout" title="切換左右/上下排列">
+                      <span id="layout-toggle-label">⇄ 切換左右</span>
+                    </button>
                     <button class="btn-toolbar-switch" id="btn-switch-card-level" title="切換練習範圍">
                       <span>🎯 換關卡 (11~20 / 11~25 / 11~32)</span>
                     </button>
@@ -572,12 +666,12 @@
                   </div>
                 </div>
                 
-                <!-- 上層：底數 n 區 -->
+                <!-- 上層：底數 n 區 (左右排版時為左側) -->
                 <div class="layer-section base-layer">
                   <div class="layer-header-pill base-pill">
                     <span class="layer-icon">🔹</span>
-                    <span class="layer-title">上方：底數區 (n)</span>
-                    <span class="layer-tip">點選底數，連到下方平方數</span>
+                    <span class="layer-title" id="base-layer-title">上方：底數區 (n)</span>
+                    <span class="layer-tip" id="base-layer-tip">點選底數，連到下方平方數</span>
                   </div>
                   <div class="layer-cards-row" id="grid-base-cards">
                     <!-- 上排卡片由 JS 動態生成 -->
@@ -585,16 +679,16 @@
                 </div>
 
                 <!-- 中間連線通道高度空間 (給 SVG 繪製優美連線) -->
-                <div class="connection-lane">
-                  <div class="lane-hint">⚡ 點選上方與下方進行發光連線 ⚡</div>
+                <div class="connection-lane" id="connection-lane">
+                  <div class="lane-hint" id="lane-hint-text">⚡ 點選上方與下方進行發光連線 ⚡</div>
                 </div>
 
-                <!-- 下層：平方數 n² 區 -->
+                <!-- 下層：平方數 n² 區 (左右排版時為右側) -->
                 <div class="layer-section square-layer">
                   <div class="layer-header-pill square-pill">
                     <span class="layer-icon">🔸</span>
-                    <span class="layer-title">下方：完全平方數區 (n²)</span>
-                    <span class="layer-tip">看平方數，秒連回是誰的平方！</span>
+                    <span class="layer-title" id="square-layer-title">下方：完全平方數區 (n²)</span>
+                    <span class="layer-tip" id="square-layer-tip">看平方數，秒連回是誰的平方！</span>
                   </div>
                   <div class="layer-cards-row" id="grid-square-cards">
                     <!-- 下排卡片由 JS 動態生成 -->
@@ -708,6 +802,58 @@
           </div>
         </div>
 
+        <!-- 八年級內容 3：極速秒殺榜 -->
+        <div id="square-leaderboard-view" class="sub-panel">
+          <div class="leaderboard-container">
+            <div class="leaderboard-header-banner square-theme">
+              <div class="leaderboard-banner-info">
+                <h2>⚡ 完全平方數極速秒殺榜</h2>
+                <p>速度與記憶力的終極對決！看誰能在最短秒數內把上底數 n 與下平方數 n² 完美連線！</p>
+              </div>
+              <div class="leaderboard-banner-badge square-badge">
+                <span class="badge-icon">⏱️</span>
+                <span class="badge-text">以秒數由短至長排序 (越快越強)</span>
+              </div>
+            </div>
+
+            <div class="leaderboard-filter-bar">
+              <div class="filter-label">篩選挑戰關卡：</div>
+              <div class="filter-pills" id="square-leaderboard-filters">
+                <button class="filter-pill active" data-filter="all">全部關卡</button>
+                <button class="filter-pill" data-filter="warmup">11~16 暖身區</button>
+                <button class="filter-pill" data-filter="core">11~20 核心區</button>
+                <button class="filter-pill" data-filter="target">11~25 目標區</button>
+                <button class="filter-pill" data-filter="master">11~32 王者區</button>
+              </div>
+              <button class="btn-clear-leaderboard" id="btn-clear-square-leaderboard" title="清空本機排行榜紀錄">
+                <span>🗑️ 清除紀錄</span>
+              </button>
+            </div>
+
+            <div class="leaderboard-table-wrapper">
+              <table class="leaderboard-table">
+                <thead>
+                  <tr>
+                    <th class="th-rank">名次</th>
+                    <th class="th-name">挑戰者</th>
+                    <th class="th-time">通關時間 ⏱️</th>
+                    <th class="th-level">挑戰關卡</th>
+                    <th class="th-date">挑戰時間</th>
+                  </tr>
+                </thead>
+                <tbody id="square-leaderboard-body">
+                  <!-- 動態載入榜單資料 -->
+                </tbody>
+              </table>
+              <div class="leaderboard-empty hidden" id="square-leaderboard-empty">
+                <span class="empty-icon">⚡</span>
+                <p>目前尚無紀錄！快前往「完全平方數上下連連看」挑戰，連線完成後輸入名字登上秒殺榜！</p>
+                <button class="btn-primary" id="btn-go-square-from-leaderboard">前往連連看挑戰</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
     </section>
@@ -728,6 +874,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=2.3"></script>
+  <script src="game.js?v=2.8"></script>
 </body>
 </html>

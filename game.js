@@ -262,6 +262,391 @@ function resetAllSquareProgress() {
 }
 
 // ==========================================
+// 排行榜 LocalStorage 管理與渲染 (Leaderboards)
+// ==========================================
+const KEY_LEADERBOARD_PRIME = 'rus_math_leaderboard_prime_v1';
+const KEY_LEADERBOARD_SQUARE = 'rus_math_leaderboard_square_v1';
+const KEY_SAVED_PLAYER_NAME = 'rus_math_player_name';
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/[&<>'"]/g, tag => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&#39;',
+    '"': '&quot;'
+  }[tag] || tag));
+}
+
+function getGrade7Leaderboard() {
+  try {
+    const raw = localStorage.getItem(KEY_LEADERBOARD_PRIME);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveGrade7LeaderboardEntry(entry) {
+  const list = getGrade7Leaderboard();
+  list.push(entry);
+  // 排序：分數最高最優；同分則準確率最高者優先；同準確率則最新紀錄優先
+  list.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+    return b.id - a.id;
+  });
+  const trimmed = list.slice(0, 50);
+  try {
+    localStorage.setItem(KEY_LEADERBOARD_PRIME, JSON.stringify(trimmed));
+  } catch (e) {
+    console.warn('儲存七年級排行榜失敗:', e);
+  }
+}
+
+let currentGrade7LeaderboardFilter = 'all';
+let highlightedGrade7Id = null;
+
+function renderGrade7Leaderboard(filter = currentGrade7LeaderboardFilter) {
+  currentGrade7LeaderboardFilter = filter;
+  const tbody = document.getElementById('prime-leaderboard-body');
+  const emptyEl = document.getElementById('prime-leaderboard-empty');
+  if (!tbody) return;
+
+  const allRecords = getGrade7Leaderboard();
+  let filtered = allRecords;
+  if (filter !== 'all') {
+    filtered = allRecords.filter(r => String(r.rangeMax) === String(filter));
+  }
+
+  tbody.innerHTML = '';
+  if (filtered.length === 0) {
+    if (emptyEl) emptyEl.classList.remove('hidden');
+    return;
+  }
+  if (emptyEl) emptyEl.classList.add('hidden');
+
+  filtered.forEach((r, idx) => {
+    const rank = idx + 1;
+    let rankBadgeHtml = '';
+    if (rank === 1) rankBadgeHtml = '<span class="rank-badge rank-1" title="冠軍">🥇</span>';
+    else if (rank === 2) rankBadgeHtml = '<span class="rank-badge rank-2" title="亞軍">🥈</span>';
+    else if (rank === 3) rankBadgeHtml = '<span class="rank-badge rank-3" title="季軍">🥉</span>';
+    else rankBadgeHtml = `<span class="rank-badge rank-other">${rank}</span>`;
+
+    const tr = document.createElement('tr');
+    if (highlightedGrade7Id && r.id === highlightedGrade7Id) {
+      tr.classList.add('newly-submitted-row');
+    }
+    tr.innerHTML = `
+      <td>${rankBadgeHtml}</td>
+      <td class="td-name">${escapeHtml(r.name || '質數神射手')}</td>
+      <td><span class="score-highlight">${r.score} 分</span></td>
+      <td><span class="level-tag-pill">${r.rangeName || (r.rangeMax ? '1~' + r.rangeMax : '一般')}</span></td>
+      <td><span class="date-text">${r.date || '-'}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function setupGrade7Leaderboard() {
+  const filterBtns = document.querySelectorAll('#prime-leaderboard-filters .filter-pill');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrade7Leaderboard(btn.dataset.filter);
+    });
+  });
+
+  const btnClear = document.getElementById('btn-clear-prime-leaderboard');
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      if (confirm('確定要清除質數館的本機英雄榜紀錄嗎？\n（此操作無法復原）')) {
+        localStorage.removeItem(KEY_LEADERBOARD_PRIME);
+        highlightedGrade7Id = null;
+        renderGrade7Leaderboard();
+        showGlobalFeedback('質數館英雄榜紀錄已清除！', 'success');
+      }
+    });
+  }
+
+  const btnGoBalloon = document.getElementById('btn-go-balloon-from-leaderboard');
+  if (btnGoBalloon) {
+    btnGoBalloon.addEventListener('click', () => {
+      document.querySelector('#grade-7-prime-pavilion .sub-tab-btn[data-subtarget="balloon-view"]').click();
+    });
+  }
+
+  const btnToLeaderboard = document.getElementById('btn-balloon-to-leaderboard');
+  if (btnToLeaderboard) {
+    btnToLeaderboard.addEventListener('click', () => {
+      document.querySelector('#grade-7-prime-pavilion .sub-tab-btn[data-subtarget="prime-leaderboard-view"]').click();
+    });
+  }
+
+  const btnSubmitScore = document.getElementById('btn-submit-balloon-score');
+  const nameInput = document.getElementById('balloon-player-name');
+
+  const submitGrade7Score = () => {
+    if (!balloonGame.lastResult || (btnSubmitScore && btnSubmitScore.disabled)) return;
+    
+    // 立即禁用防止重複連點
+    if (btnSubmitScore) {
+      btnSubmitScore.disabled = true;
+      btnSubmitScore.textContent = '已登錄 ✓';
+    }
+
+    let nameVal = (nameInput ? nameInput.value.trim() : '');
+    if (!nameVal) nameVal = '質數神射手';
+
+    try {
+      localStorage.setItem(KEY_SAVED_PLAYER_NAME, nameVal);
+    } catch (e) {}
+
+    const now = new Date();
+    const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const names = { 30: '1~30 暖身區', 60: '1~60 進階區', 100: '1~100 全制霸' };
+
+    const newId = Date.now();
+    const entry = {
+      id: newId,
+      name: nameVal,
+      score: balloonGame.lastResult.score,
+      hits: balloonGame.lastResult.hits,
+      accuracy: balloonGame.lastResult.accuracy,
+      rangeMax: balloonGame.lastResult.rangeMax,
+      rangeName: names[balloonGame.lastResult.rangeMax] || `${balloonGame.lastResult.rangeMax} 以內`,
+      date: dateStr
+    };
+
+    saveGrade7LeaderboardEntry(entry);
+    balloonGame.lastResult = null; // 登記後清空，杜絕重複提交
+    highlightedGrade7Id = newId;
+
+    sound.playMatch();
+    showGlobalFeedback('🎉 英雄榜登錄成功！為您跳轉排行榜', 'success');
+
+    // 關閉遊戲結束覆蓋層
+    const overlay = document.getElementById('balloon-gameover-overlay');
+    if (overlay) overlay.classList.add('hidden');
+
+    // 重設篩選為「全部」，確保剛登錄的成績一定看得到
+    const allFilterBtn = document.querySelector('#prime-leaderboard-filters .filter-pill[data-filter="all"]');
+    if (allFilterBtn) {
+      document.querySelectorAll('#prime-leaderboard-filters .filter-pill').forEach(b => b.classList.remove('active'));
+      allFilterBtn.classList.add('active');
+      currentGrade7LeaderboardFilter = 'all';
+    }
+
+    // 直接切換跳轉至英雄榜分頁
+    const targetTab = document.querySelector('#grade-7-prime-pavilion .sub-tab-btn[data-subtarget="prime-leaderboard-view"]');
+    if (targetTab) {
+      targetTab.click();
+    }
+  };
+
+  if (btnSubmitScore) {
+    btnSubmitScore.addEventListener('click', submitGrade7Score);
+  }
+  if (nameInput) {
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitGrade7Score();
+      }
+    });
+  }
+}
+
+function getGrade8Leaderboard() {
+  try {
+    const raw = localStorage.getItem(KEY_LEADERBOARD_SQUARE);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveGrade8LeaderboardEntry(entry) {
+  const list = getGrade8Leaderboard();
+  list.push(entry);
+  // 排序：通關秒數最短最優；同秒數則嘗試次數最少優先；同次數則最新紀錄優先
+  list.sort((a, b) => {
+    if (a.seconds !== b.seconds) return a.seconds - b.seconds;
+    if (a.moves !== b.moves) return a.moves - b.moves;
+    return b.id - a.id;
+  });
+  const trimmed = list.slice(0, 50);
+  try {
+    localStorage.setItem(KEY_LEADERBOARD_SQUARE, JSON.stringify(trimmed));
+  } catch (e) {
+    console.warn('儲存八年級排行榜失敗:', e);
+  }
+}
+
+let currentGrade8LeaderboardFilter = 'all';
+let highlightedGrade8Id = null;
+
+function renderGrade8Leaderboard(filter = currentGrade8LeaderboardFilter) {
+  currentGrade8LeaderboardFilter = filter;
+  const tbody = document.getElementById('square-leaderboard-body');
+  const emptyEl = document.getElementById('square-leaderboard-empty');
+  if (!tbody) return;
+
+  const allRecords = getGrade8Leaderboard();
+  let filtered = allRecords;
+  if (filter !== 'all') {
+    filtered = allRecords.filter(r => r.level === filter);
+  }
+
+  tbody.innerHTML = '';
+  if (filtered.length === 0) {
+    if (emptyEl) emptyEl.classList.remove('hidden');
+    return;
+  }
+  if (emptyEl) emptyEl.classList.add('hidden');
+
+  filtered.forEach((r, idx) => {
+    const rank = idx + 1;
+    let rankBadgeHtml = '';
+    if (rank === 1) rankBadgeHtml = '<span class="rank-badge rank-1" title="冠軍">🥇</span>';
+    else if (rank === 2) rankBadgeHtml = '<span class="rank-badge rank-2" title="亞軍">🥈</span>';
+    else if (rank === 3) rankBadgeHtml = '<span class="rank-badge rank-3" title="季軍">🥉</span>';
+    else rankBadgeHtml = `<span class="rank-badge rank-other">${rank}</span>`;
+
+    const tr = document.createElement('tr');
+    if (highlightedGrade8Id && r.id === highlightedGrade8Id) {
+      tr.classList.add('newly-submitted-row');
+    }
+    tr.innerHTML = `
+      <td>${rankBadgeHtml}</td>
+      <td class="td-name">${escapeHtml(r.name || '速算王者')}</td>
+      <td><span class="time-highlight">${r.seconds} 秒</span></td>
+      <td><span class="level-tag-pill">${r.levelName || r.level}</span></td>
+      <td><span class="date-text">${r.date || '-'}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function setupGrade8Leaderboard() {
+  const filterBtns = document.querySelectorAll('#square-leaderboard-filters .filter-pill');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderGrade8Leaderboard(btn.dataset.filter);
+    });
+  });
+
+  const btnClear = document.getElementById('btn-clear-square-leaderboard');
+  if (btnClear) {
+    btnClear.addEventListener('click', () => {
+      if (confirm('確定要清除平方根館的本機極速榜紀錄嗎？\n（此操作無法復原）')) {
+        localStorage.removeItem(KEY_LEADERBOARD_SQUARE);
+        highlightedGrade8Id = null;
+        renderGrade8Leaderboard();
+        showGlobalFeedback('平方根館極速榜紀錄已清除！', 'success');
+      }
+    });
+  }
+
+  const btnGoSquare = document.getElementById('btn-go-square-from-leaderboard');
+  if (btnGoSquare) {
+    btnGoSquare.addEventListener('click', () => {
+      document.querySelector('#grade-8-square-pavilion .sub-tab-btn[data-subtarget="card-view"]').click();
+    });
+  }
+
+  const btnToLeaderboard = document.getElementById('btn-card-to-leaderboard');
+  if (btnToLeaderboard) {
+    btnToLeaderboard.addEventListener('click', () => {
+      document.querySelector('#grade-8-square-pavilion .sub-tab-btn[data-subtarget="square-leaderboard-view"]').click();
+    });
+  }
+
+  const btnSubmitScore = document.getElementById('btn-submit-card-score');
+  const nameInput = document.getElementById('card-player-name');
+
+  const submitGrade8Score = () => {
+    if (!dualMatchGame.lastResult || (btnSubmitScore && btnSubmitScore.disabled)) return;
+    
+    // 立即禁用防止重複連點
+    if (btnSubmitScore) {
+      btnSubmitScore.disabled = true;
+      btnSubmitScore.textContent = '已登錄 ✓';
+    }
+
+    let nameVal = (nameInput ? nameInput.value.trim() : '');
+    if (!nameVal) nameVal = '速算高手';
+
+    try {
+      localStorage.setItem(KEY_SAVED_PLAYER_NAME, nameVal);
+    } catch (e) {}
+
+    const now = new Date();
+    const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const levelNames = {
+      warmup: '11~16 暖身區',
+      core: '11~20 核心區',
+      target: '11~25 目標區',
+      master: '11~32 王者區'
+    };
+
+    const newId = Date.now();
+    const entry = {
+      id: newId,
+      name: nameVal,
+      seconds: dualMatchGame.lastResult.seconds,
+      moves: dualMatchGame.lastResult.moves,
+      stars: dualMatchGame.lastResult.stars,
+      level: dualMatchGame.lastResult.level,
+      levelName: levelNames[dualMatchGame.lastResult.level] || dualMatchGame.lastResult.level,
+      date: dateStr
+    };
+
+    saveGrade8LeaderboardEntry(entry);
+    dualMatchGame.lastResult = null; // 登記後清空，杜絕重複提交
+    highlightedGrade8Id = newId;
+
+    sound.playMatch();
+    showGlobalFeedback('⚡ 極速榜登錄成功！為您跳轉排行榜', 'success');
+
+    // 關閉遊戲結束覆蓋層
+    const overlay = document.getElementById('card-gameover-overlay');
+    if (overlay) overlay.classList.add('hidden');
+
+    // 重設篩選為「全部」，確保剛登錄的成績一定看得到
+    const allFilterBtn = document.querySelector('#square-leaderboard-filters .filter-pill[data-filter="all"]');
+    if (allFilterBtn) {
+      document.querySelectorAll('#square-leaderboard-filters .filter-pill').forEach(b => b.classList.remove('active'));
+      allFilterBtn.classList.add('active');
+      currentGrade8LeaderboardFilter = 'all';
+    }
+
+    // 直接切換跳轉至極速榜分頁
+    const targetTab = document.querySelector('#grade-8-square-pavilion .sub-tab-btn[data-subtarget="square-leaderboard-view"]');
+    if (targetTab) {
+      targetTab.click();
+    }
+  };
+
+  if (btnSubmitScore) {
+    btnSubmitScore.addEventListener('click', submitGrade8Score);
+  }
+  if (nameInput) {
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        submitGrade8Score();
+      }
+    });
+  }
+}
+
+// ==========================================
 // 初始化與控制綁定
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -275,11 +660,13 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPrimeCodex();
   setupBalloonGame();
   setupPrimeCertificate();
+  setupGrade7Leaderboard();
 
   // 八年級初始化
   renderSquareCodex();
   setupDualMatchGame();
   setupSquareCertificate();
+  setupGrade8Leaderboard();
 
   updateHeaderAndCodexUI();
 });
@@ -307,18 +694,25 @@ function setupGradeNavigation() {
 }
 
 function setupPavilionNavigation() {
-  // 七年級：質數館
-  const btnEnterPrime = document.getElementById('btn-enter-prime-pavilion');
+  // 七年級：質數館 (直接點擊卡片框框即可進入)
+  const cardEnterPrime = document.getElementById('card-enter-prime-pavilion') || document.getElementById('btn-enter-prime-pavilion');
   const btnBackGrade7 = document.getElementById('btn-back-to-grade7-hub');
   const grade7Hub = document.getElementById('grade-7-hub');
   const grade7Pavilion = document.getElementById('grade-7-prime-pavilion');
 
-  if (btnEnterPrime && grade7Hub && grade7Pavilion) {
-    btnEnterPrime.addEventListener('click', () => {
+  if (cardEnterPrime && grade7Hub && grade7Pavilion) {
+    const enterPrimeAction = () => {
       grade7Hub.classList.remove('active');
       grade7Pavilion.classList.add('active');
       renderPrimeCodex();
       updateHeaderAndCodexUI();
+    };
+    cardEnterPrime.addEventListener('click', enterPrimeAction);
+    cardEnterPrime.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        enterPrimeAction();
+      }
     });
   }
   if (btnBackGrade7 && grade7Hub && grade7Pavilion) {
@@ -329,18 +723,25 @@ function setupPavilionNavigation() {
     });
   }
 
-  // 八年級：平方根館
-  const btnEnterSquare = document.getElementById('btn-enter-square-pavilion');
+  // 八年級：平方根館 (直接點擊卡片框框即可進入)
+  const cardEnterSquare = document.getElementById('card-enter-square-pavilion') || document.getElementById('btn-enter-square-pavilion');
   const btnBackGrade8 = document.getElementById('btn-back-to-grade8-hub');
   const grade8Hub = document.getElementById('grade-8-hub');
   const grade8Pavilion = document.getElementById('grade-8-square-pavilion');
 
-  if (btnEnterSquare && grade8Hub && grade8Pavilion) {
-    btnEnterSquare.addEventListener('click', () => {
+  if (cardEnterSquare && grade8Hub && grade8Pavilion) {
+    const enterSquareAction = () => {
       grade8Hub.classList.remove('active');
       grade8Pavilion.classList.add('active');
       renderSquareCodex();
       updateHeaderAndCodexUI();
+    };
+    cardEnterSquare.addEventListener('click', enterSquareAction);
+    cardEnterSquare.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        enterSquareAction();
+      }
     });
   }
   if (btnBackGrade8 && grade8Hub && grade8Pavilion) {
@@ -372,13 +773,17 @@ function setupSubTabs() {
 
       if (target !== 'balloon-view' && balloonGame.isRunning) balloonGame.endGame(false);
 
-      // 切換至圖鑑或證書分頁時，即時重新讀取儲存並刷新畫面
+      // 切換至圖鑑、證書或排行榜分頁時，即時重新讀取儲存並刷新畫面
       if (target === 'codex-view') {
         renderPrimeCodex();
         updateHeaderAndCodexUI();
       } else if (target === 'square-codex-view') {
         renderSquareCodex();
         updateHeaderAndCodexUI();
+      } else if (target === 'prime-leaderboard-view') {
+        renderGrade7Leaderboard();
+      } else if (target === 'square-leaderboard-view') {
+        renderGrade8Leaderboard();
       }
     });
   });
@@ -833,6 +1238,28 @@ const balloonGame = {
         reviewBox.appendChild(d);
       });
     }
+
+    // 暫存本次成績供登錄英雄榜
+    this.lastResult = {
+      score: this.score,
+      hits: this.hits,
+      accuracy: acc,
+      rangeMax: this.rangeMax
+    };
+
+    const nameInput = document.getElementById('balloon-player-name');
+    const submitBtn = document.getElementById('btn-submit-balloon-score');
+    const msgEl = document.getElementById('balloon-submit-msg');
+    if (nameInput) nameInput.value = localStorage.getItem(KEY_SAVED_PLAYER_NAME) || '';
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '登錄榜單 🏆';
+    }
+    if (msgEl) {
+      msgEl.classList.add('hidden');
+      msgEl.textContent = '';
+    }
+
     overlay.classList.remove('hidden');
   }
 };
@@ -925,6 +1352,7 @@ function updateSquareCertificateUI(count) {
 const dualMatchGame = {
   isRunning: false,
   selectedLevel: 'warmup',
+  isSideBySide: false,
   matchedPairsCount: 0,
   totalPairsCount: 0,
   moves: 0,
@@ -997,6 +1425,14 @@ const dualMatchGame = {
     const btnChangeAfter = document.getElementById('btn-change-card-level-after');
     if (btnChangeAfter) btnChangeAfter.addEventListener('click', () => this.openLevelPicker());
 
+    // ⇄ 切換左右 / 上下 排版按鈕
+    const btnToggleLayout = document.getElementById('btn-toggle-card-layout');
+    if (btnToggleLayout) {
+      btnToggleLayout.addEventListener('click', () => {
+        this.setSideBySideLayout(!this.isSideBySide);
+      });
+    }
+
     // 視窗縮放或裝置旋轉時，即時重算所有連線座標以防跑版
     window.addEventListener('resize', () => {
       if (this.matchedPairs.length > 0) {
@@ -1010,6 +1446,55 @@ const dualMatchGame = {
         }
       }, 150);
     });
+  },
+
+  setSideBySideLayout(enable) {
+    this.isSideBySide = !!enable;
+    const container = document.querySelector('.top-bottom-container');
+    const toggleBtn = document.getElementById('btn-toggle-card-layout');
+    const toggleLabel = document.getElementById('layout-toggle-label');
+    const baseTitle = document.getElementById('base-layer-title');
+    const baseTip = document.getElementById('base-layer-tip');
+    const squareTitle = document.getElementById('square-layer-title');
+    const squareTip = document.getElementById('square-layer-tip');
+    const laneHint = document.getElementById('lane-hint-text');
+
+    if (container) {
+      if (this.isSideBySide) {
+        container.classList.add('side-by-side-mode');
+      } else {
+        container.classList.remove('side-by-side-mode');
+      }
+    }
+
+    if (toggleBtn) {
+      if (this.isSideBySide) {
+        toggleBtn.classList.add('active-side');
+        if (toggleLabel) toggleLabel.textContent = '⇅ 切換上下';
+      } else {
+        toggleBtn.classList.remove('active-side');
+        if (toggleLabel) toggleLabel.textContent = '⇄ 切換左右';
+      }
+    }
+
+    if (this.isSideBySide) {
+      if (baseTitle) baseTitle.textContent = '左側：底數區 (n)';
+      if (baseTip) baseTip.textContent = '點底數連右側平方數';
+      if (squareTitle) squareTitle.textContent = '右側：平方數區 (n²)';
+      if (squareTip) squareTip.textContent = '看平方數秒連回底數！';
+      if (laneHint) laneHint.textContent = '⚡ 左右發光連線 ⚡';
+    } else {
+      if (baseTitle) baseTitle.textContent = '上方：底數區 (n)';
+      if (baseTip) baseTip.textContent = '點選底數，連到下方平方數';
+      if (squareTitle) squareTitle.textContent = '下方：完全平方數區 (n²)';
+      if (squareTip) squareTip.textContent = '看平方數，秒連回是誰的平方！';
+      if (laneHint) laneHint.textContent = '⚡ 點選上方與下方進行發光連線 ⚡';
+    }
+
+    // 重新繪製已連線的路徑，確保切換排列時線條座標即時對齊
+    setTimeout(() => {
+      this.updateAllLines();
+    }, 50);
   },
 
   openLevelPicker() {
@@ -1036,6 +1521,13 @@ const dualMatchGame = {
         master: '11~32 王者挑戰 (22 組)'
       };
       levelLabelEl.textContent = `當前關卡：${names[this.selectedLevel] || this.selectedLevel}`;
+    }
+
+    // 王者挑戰(11~32 共 22 組)預設採用左右排列，避免上下距離過遠需頻繁滾動；其他關卡預設上下，可隨時按鈕切換
+    if (this.selectedLevel === 'master') {
+      this.setSideBySideLayout(true);
+    } else {
+      this.setSideBySideLayout(false);
     }
 
     this.isRunning = true;
@@ -1260,8 +1752,14 @@ const dualMatchGame = {
     if (!this.svgCanvas || !this.arena) return null;
 
     const { x1, y1, x2, y2 } = this.calculateCardCoordinates(baseCard, squareCard);
-    const midY = (y1 + y2) / 2;
-    const dStr = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+    let dStr = '';
+    if (this.isSideBySide) {
+      const midX = (x1 + x2) / 2;
+      dStr = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+    } else {
+      const midY = (y1 + y2) / 2;
+      dStr = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+    }
 
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', dStr);
@@ -1297,8 +1795,15 @@ const dualMatchGame = {
     this.matchedPairs.forEach(pair => {
       if (pair.baseCard && pair.squareCard && pair.pathEl) {
         const { x1, y1, x2, y2 } = this.calculateCardCoordinates(pair.baseCard, pair.squareCard);
-        const midY = (y1 + y2) / 2;
-        pair.pathEl.setAttribute('d', `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`);
+        let dStr = '';
+        if (this.isSideBySide) {
+          const midX = (x1 + x2) / 2;
+          dStr = `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`;
+        } else {
+          const midY = (y1 + y2) / 2;
+          dStr = `M ${x1} ${y1} C ${x1} ${midY}, ${x2} ${midY}, ${x2} ${y2}`;
+        }
+        pair.pathEl.setAttribute('d', dStr);
       }
     });
   },
@@ -1327,6 +1832,27 @@ const dualMatchGame = {
     if (this.moves > this.totalPairsCount * 1.8) stars = '⭐';
     else if (this.moves > this.totalPairsCount * 1.3) stars = '⭐⭐';
     document.getElementById('card-final-stars').textContent = stars;
+
+    // 暫存本次成績供登錄極速榜
+    this.lastResult = {
+      seconds: this.seconds,
+      moves: this.moves,
+      stars: stars,
+      level: this.selectedLevel
+    };
+
+    const nameInput = document.getElementById('card-player-name');
+    const submitBtn = document.getElementById('btn-submit-card-score');
+    const msgEl = document.getElementById('card-submit-msg');
+    if (nameInput) nameInput.value = localStorage.getItem(KEY_SAVED_PLAYER_NAME) || '';
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '登錄極速榜 ⚡';
+    }
+    if (msgEl) {
+      msgEl.classList.add('hidden');
+      msgEl.textContent = '';
+    }
 
     overlay.classList.remove('hidden');
   }
