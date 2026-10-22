@@ -4,20 +4,37 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ru's math class - 國中數學自主練習平台</title>
-  <link rel="stylesheet" href="style.css?v=2.8">
+  <link rel="stylesheet" href="style.css?v=3.3">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- 頂部導航列 -->
+  <!-- 頂部導航列 (包含 Logo、大廳與年級切換按鈕、音效開關同一行) -->
   <header class="app-header">
-    <div class="logo-area">
+    <div class="logo-area" title="點擊返回大廳">
       <div class="logo-icon">📐</div>
       <div>
         <h1 class="logo-title">Ru's math class</h1>
         <p class="logo-subtitle">國中數學自主練習場 ‧ 探索數學的樂趣</p>
       </div>
     </div>
+
+    <!-- 年級與大廳切換標籤 (與標題同一行) -->
+    <nav class="grade-nav">
+      <button class="grade-btn active" data-grade="home-portal" id="nav-btn-home">
+        <span class="grade-emoji">🏠</span>
+        <span class="grade-text">大廳</span>
+      </button>
+      <button class="grade-btn" data-grade="grade-7" id="nav-btn-grade7">
+        <span class="grade-emoji">🎒</span>
+        <span class="grade-text">七年級專區</span>
+      </button>
+      <button class="grade-btn" data-grade="grade-8" id="nav-btn-grade8">
+        <span class="grade-emoji">📘</span>
+        <span class="grade-text">八年級專區</span>
+      </button>
+    </nav>
+
     <div class="header-actions">
       <button class="icon-btn" id="btn-toggle-sound" title="音效開關">
         <span id="sound-icon">🔊</span>
@@ -25,29 +42,169 @@
     </div>
   </header>
 
-  <!-- 年級切換大標籤 -->
-  <div class="grade-nav-wrapper">
-    <div class="grade-nav">
-      <button class="grade-btn active" data-grade="grade-7">
-        <span class="grade-emoji">🎒</span>
-        <span class="grade-text">七年級專區</span>
-        <span class="grade-tag">開放練習中</span>
-      </button>
-      <button class="grade-btn" data-grade="grade-8">
-        <span class="grade-emoji">📘</span>
-        <span class="grade-text">八年級專區</span>
-        <span class="grade-tag active-tag">新館開放🔥</span>
-      </button>
-    </div>
-  </div>
-
   <!-- 主要內容區塊 -->
   <main class="main-content">
 
     <!-- ========================================== -->
+    <!-- 練習入口首頁 (Home Portal) -->
+    <!-- ========================================== -->
+    <section id="home-portal" class="grade-panel active">
+      
+      <!-- 首頁英雄迎賓標語 -->
+      <div class="home-hero-banner">
+        <div class="hero-badge">✨ 國中數學自主練習平台 ✨</div>
+        <h2 class="hero-title">Ru's Math Class</h2>
+        <p class="hero-slogan">擺脫死背！每天 5 分鐘，用遊戲玩出數學秒殺超能力 ⚡</p>
+        
+        <!-- 今日數學冷知識 / 速算小重點卡片 -->
+        <div class="hero-trivia-card" id="hero-trivia-card">
+          <div class="trivia-header">
+            <div class="trivia-badge">
+              <span class="trivia-icon">💡</span>
+              <span class="trivia-title" id="trivia-topic-tag">今日數學冷知識</span>
+            </div>
+            <button type="button" class="btn-refresh-trivia" id="btn-refresh-trivia" title="隨機換一則數學冷知識">
+              <span>🎲 換一則</span>
+            </button>
+          </div>
+          <p class="trivia-content" id="hero-trivia-text">
+            加載中...
+          </p>
+        </div>
+      </div>
+
+      <!-- 年級核心傳送門（左右雙大卡片） -->
+      <div class="home-portals-grid">
+        
+        <!-- 七年級傳送卡片 -->
+        <div class="portal-card portal-grade-7" id="portal-card-grade-7" role="button" tabindex="0" title="點擊進入七年級質數挑戰館">
+          <div class="portal-header">
+            <span class="portal-grade-badge">七年級單元 ‧ 質數與因數</span>
+            <span class="portal-status-badge">熱門推薦 🔥</span>
+          </div>
+          <div class="portal-icon-wrap">
+            <span class="portal-main-icon">🎈</span>
+            <span class="portal-sub-icon">🎯</span>
+          </div>
+          <h3 class="portal-title">質數神射手挑戰館</h3>
+          <p class="portal-desc">
+            100 以內質數快速辨識！動態漂浮氣球射擊遊戲，掌握質數判別 4 大口訣，打下國一質因數分解與最大公因數根基！
+          </p>
+          
+          <!-- 即時進度顯示 -->
+          <div class="portal-progress-box">
+            <div class="progress-labels">
+              <span>💎 質數寶庫進度</span>
+              <span class="progress-val" id="home-prime-progress-text">0 / 25</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill fill-prime" id="home-prime-progress-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="portal-highlights">
+            <span class="highlight-tag">🎈 氣球射擊</span>
+            <span class="highlight-tag">📜 質數寶庫</span>
+            <span class="highlight-tag">🏅 大師證書</span>
+            <span class="highlight-tag">🏆 英雄積分榜</span>
+          </div>
+
+          <div class="portal-action-area">
+            <button class="btn-portal-enter btn-enter-grade7" id="btn-home-enter-grade7">
+              <span>進入七年級挑戰館</span>
+              <span class="btn-arrow">➔</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 八年級傳送卡片 -->
+        <div class="portal-card portal-grade-8" id="portal-card-grade-8" role="button" tabindex="0" title="點擊進入八年級完全平方數挑戰館">
+          <div class="portal-header">
+            <span class="portal-grade-badge">八年級單元 ‧ 平方根與畢氏定理</span>
+            <span class="portal-status-badge active-fire">王者首選 ⚡</span>
+          </div>
+          <div class="portal-icon-wrap">
+            <span class="portal-main-icon">🎴</span>
+            <span class="portal-sub-icon">⚡</span>
+          </div>
+          <h3 class="portal-title">完全平方數極速連線館</h3>
+          <p class="portal-desc">
+            11²~32² 完全平方數秒殺速記！上下與左右自由排版發光連連看，攻克國二根號化簡與畢氏定理核心技能！
+          </p>
+          
+          <!-- 即時進度顯示 -->
+          <div class="portal-progress-box">
+            <div class="progress-labels">
+              <span>💎 平方寶石進度</span>
+              <span class="progress-val" id="home-square-progress-text">0 / 22</span>
+            </div>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill fill-square" id="home-square-progress-bar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <div class="portal-highlights">
+            <span class="highlight-tag">⚡ 發光連線</span>
+            <span class="highlight-tag">👑 王者挑戰</span>
+            <span class="highlight-tag">📜 大師證書</span>
+            <span class="highlight-tag">⏱️ 極速秒殺榜</span>
+          </div>
+
+          <div class="portal-action-area">
+            <button class="btn-portal-enter btn-enter-grade8" id="btn-home-enter-grade8">
+              <span>進入八年級挑戰館</span>
+              <span class="btn-arrow">➔</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 個人戰績榮譽櫃 (Trophy Showcase) -->
+      <div class="home-trophy-shelf">
+        <div class="shelf-header">
+          <span class="shelf-icon">🏆</span>
+          <span class="shelf-title">我的數學榮譽戰績櫃</span>
+          <span class="shelf-subtitle">（紀錄即時保存在當前裝置）</span>
+        </div>
+        <div class="trophy-cards-grid">
+          <div class="trophy-stat-card">
+            <div class="trophy-icon">💎</div>
+            <div class="trophy-info">
+              <span class="trophy-val" id="trophy-total-gems">0 / 47</span>
+              <span class="trophy-label">已收集數學寶石總數</span>
+            </div>
+          </div>
+          <div class="trophy-stat-card">
+            <div class="trophy-icon">📜</div>
+            <div class="trophy-info">
+              <span class="trophy-val" id="trophy-total-certs">0 / 2</span>
+              <span class="trophy-label">大師榮譽證書張數</span>
+            </div>
+          </div>
+          <div class="trophy-stat-card">
+            <div class="trophy-icon">🥇</div>
+            <div class="trophy-info">
+              <span class="trophy-val" id="trophy-prime-best">無紀錄</span>
+              <span class="trophy-label">七年級質數最佳得分</span>
+            </div>
+          </div>
+          <div class="trophy-stat-card">
+            <div class="trophy-icon">⚡</div>
+            <div class="trophy-info">
+              <span class="trophy-val" id="trophy-square-best">無紀錄</span>
+              <span class="trophy-label">八年級平方數最速秒數</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
     <!-- 七年級專區 -->
     <!-- ========================================== -->
-    <section id="grade-7" class="grade-panel active">
+    <section id="grade-7" class="grade-panel">
       
       <!-- 7年級大廳：單元卡片選單 -->
       <div id="grade-7-hub" class="grade-view active">
@@ -874,6 +1031,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=2.8"></script>
+  <script src="game.js?v=3.3"></script>
 </body>
 </html>

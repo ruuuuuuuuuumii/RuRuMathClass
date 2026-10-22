@@ -188,7 +188,7 @@ const sound = new SoundFX();
 const KEY_PRIMES = 'rus_math_unlocked_primes_v1';
 const KEY_SQUARES = 'rus_math_unlocked_squares_v1';
 
-let activeGrade = 'grade-7';
+let activeGrade = 'home-portal';
 
 function getUnlockedPrimes() {
   try {
@@ -652,6 +652,7 @@ function setupGrade8Leaderboard() {
 document.addEventListener('DOMContentLoaded', () => {
   setupGradeNavigation();
   setupPavilionNavigation();
+  setupHomePortal();
   setupSubTabs();
   setupAudioToggle();
   setupModals();
@@ -670,6 +671,149 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateHeaderAndCodexUI();
 });
+
+const MATH_TRIVIA_LIST = [
+  {
+    topic: '💡 質數小冷知識',
+    text: '為什麼 1 不是質數？因為質數的數學定義是「恰好有 2 個相異正因數（1 和自己）」，而 1 只有 1 個因數，所以 1 既不是質數也不是合數喔！'
+  },
+  {
+    topic: '👑 偶數質數之王',
+    text: '數字 2 是全宇宙唯一一個「偶數質數」！除 2 以外的所有偶數都能被 2 整除，所以全都不是質數！'
+  },
+  {
+    topic: '⚡ 尾數是 5 的平方速算法',
+    text: '以 25² 為例：將十位數 2 乘以下一個整數 3（2×3=6），後面直接接上 25，答案就是 625！同理 35² = 3×4接25 = 1225！'
+  },
+  {
+    topic: '⚠️ 段考超級大魔王 91',
+    text: '考試時最常被粗心當成質數的數字是 91！其實 91 = 7 × 13，它是合數！段考超級愛考，一定要提高警覺！'
+  },
+  {
+    topic: '🔍 完全平方數的尾數秘密',
+    text: '任何整數平方後的個位數字，只可能是 0、1、4、5、6、9 六種！絕對不可能以 2、3、7、8 結尾，看到 2、3、7、8 就能秒殺判定不是平方數！'
+  },
+  {
+    topic: '🏛️ 11 的倍數回文奇蹟',
+    text: '11² = 121、111² = 12321、1111² = 1234321！算出來的平方數就像一座金字塔，正著讀反著讀都一樣（回文數），神奇又對稱！'
+  },
+  {
+    topic: '📐 畢氏定理與古埃及',
+    text: '古埃及工匠利用一條打了 12 個等距結的繩子圍成 3 : 4 : 5 的三角形，在尼羅河氾濫後精準拉出直角來重新劃分農地！'
+  },
+  {
+    topic: '✨ 連續奇數相加就是平方數',
+    text: '1 = 1²，1 + 3 = 4 = 2²，1 + 3 + 5 = 9 = 3²，1 + 3 + 5 + 7 = 16 = 4²！從 1 開始連續加前 n 個奇數，剛好永遠等於 n²！'
+  },
+  {
+    topic: '🎯 質數判別陷阱 51 與 57',
+    text: '51 和 57 長得很像質數？別被騙了！5+1=6 是 3 的倍數（51 = 3 × 17），5+7=12 也是 3 的倍數（57 = 3 × 19），兩者都是合數！'
+  },
+  {
+    topic: '🏆 直角三角形黃金整數邊',
+    text: '國二畢氏定理必考的整數邊長組合：3-4-5、5-12-13、7-24-25、8-15-17，牢記這四組，段考幾何題就能秒殺搶下分數！'
+  },
+  {
+    topic: '💎 浪漫的孿生質數',
+    text: '數學上把相差只有 2 的兩個質數稱為「孿生質數」，例如 (3, 5)、(5, 7)、(11, 13)、(17, 19)、(29, 31)、(41, 43)！'
+  },
+  {
+    topic: '🎲 任意連續四整數乘積加 1',
+    text: '任意 4 個連續整數相乘後加 1，一定是一個完全平方數！例如 1×2×3×4 + 1 = 25 = 5²；2×3×4×5 + 1 = 121 = 11²！'
+  }
+];
+
+function setupHomePortal() {
+  const portalGrade7 = document.getElementById('portal-card-grade-7');
+  const btnEnterGrade7 = document.getElementById('btn-home-enter-grade7');
+  const portalGrade8 = document.getElementById('portal-card-grade-8');
+  const btnEnterGrade8 = document.getElementById('btn-home-enter-grade8');
+  const logoArea = document.querySelector('.logo-area');
+
+  // 今日數學冷知識 / 速算小重點渲染
+  let currentTriviaIndex = (new Date().getDate() - 1) % MATH_TRIVIA_LIST.length;
+  if (currentTriviaIndex < 0) currentTriviaIndex = 0;
+
+  const renderTrivia = (idx) => {
+    const item = MATH_TRIVIA_LIST[idx % MATH_TRIVIA_LIST.length];
+    const tagEl = document.getElementById('trivia-topic-tag');
+    const textEl = document.getElementById('hero-trivia-text');
+    if (tagEl && item) tagEl.textContent = item.topic;
+    if (textEl && item) textEl.textContent = item.text;
+  };
+
+  renderTrivia(currentTriviaIndex);
+
+  const btnRefresh = document.getElementById('btn-refresh-trivia');
+  if (btnRefresh) {
+    btnRefresh.addEventListener('click', () => {
+      currentTriviaIndex = (currentTriviaIndex + 1) % MATH_TRIVIA_LIST.length;
+      renderTrivia(currentTriviaIndex);
+      sound.playPop();
+    });
+  }
+
+  const goToGrade7 = (e) => {
+    if (e) e.stopPropagation();
+    const navBtn = document.getElementById('nav-btn-grade7') || document.querySelector('.grade-btn[data-grade="grade-7"]');
+    if (navBtn) navBtn.click();
+    const hub = document.getElementById('grade-7-hub');
+    const pavilion = document.getElementById('grade-7-prime-pavilion');
+    if (hub && pavilion) {
+      hub.classList.remove('active');
+      pavilion.classList.add('active');
+      renderPrimeCodex();
+      updateHeaderAndCodexUI();
+    }
+  };
+
+  const goToGrade8 = (e) => {
+    if (e) e.stopPropagation();
+    const navBtn = document.getElementById('nav-btn-grade8') || document.querySelector('.grade-btn[data-grade="grade-8"]');
+    if (navBtn) navBtn.click();
+    const hub = document.getElementById('grade-8-hub');
+    const pavilion = document.getElementById('grade-8-square-pavilion');
+    if (hub && pavilion) {
+      hub.classList.remove('active');
+      pavilion.classList.add('active');
+      renderSquareCodex();
+      updateHeaderAndCodexUI();
+    }
+  };
+
+  if (portalGrade7) portalGrade7.addEventListener('click', goToGrade7);
+  if (btnEnterGrade7) btnEnterGrade7.addEventListener('click', goToGrade7);
+  if (portalGrade8) portalGrade8.addEventListener('click', goToGrade8);
+  if (btnEnterGrade8) btnEnterGrade8.addEventListener('click', goToGrade8);
+
+  // 鍵盤操作支援
+  if (portalGrade7) {
+    portalGrade7.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        goToGrade7(e);
+      }
+    });
+  }
+  if (portalGrade8) {
+    portalGrade8.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        goToGrade8(e);
+      }
+    });
+  }
+
+  // 點擊 Logo 可一鍵返回首頁大廳
+  if (logoArea) {
+    logoArea.style.cursor = 'pointer';
+    logoArea.setAttribute('title', '點擊返回大廳');
+    logoArea.addEventListener('click', () => {
+      const homeBtn = document.getElementById('nav-btn-home') || document.querySelector('.grade-btn[data-grade="home-portal"]');
+      if (homeBtn) homeBtn.click();
+    });
+  }
+}
 
 function setupGradeNavigation() {
   const gradeBtns = document.querySelectorAll('.grade-btn');
@@ -878,12 +1022,62 @@ function updateHeaderAndCodexUI() {
   const unlockedPrimes = getUnlockedPrimes();
   const unlockedSquares = getUnlockedSquares();
 
+  const primeCount = unlockedPrimes.size;
+  const squareCount = unlockedSquares.size;
+
+  // 頂部導航累計數字
   const countEl = document.getElementById('header-codex-count');
   if (countEl) {
     if (activeGrade === 'grade-7') {
-      countEl.textContent = `${unlockedPrimes.size}/25`;
+      countEl.textContent = `${primeCount}/25`;
+    } else if (activeGrade === 'grade-8') {
+      countEl.textContent = `${squareCount}/22`;
     } else {
-      countEl.textContent = `${unlockedSquares.size}/15`;
+      countEl.textContent = `${primeCount + squareCount}/47`;
+    }
+  }
+
+  // 首頁七年級卡片進度條
+  const homePrimeText = document.getElementById('home-prime-progress-text');
+  const homePrimeBar = document.getElementById('home-prime-progress-bar');
+  if (homePrimeText) homePrimeText.textContent = `${primeCount} / 25`;
+  if (homePrimeBar) homePrimeBar.style.width = `${Math.min(100, Math.round((primeCount / 25) * 100))}%`;
+
+  // 首頁八年級卡片進度條
+  const homeSquareText = document.getElementById('home-square-progress-text');
+  const homeSquareBar = document.getElementById('home-square-progress-bar');
+  if (homeSquareText) homeSquareText.textContent = `${squareCount} / 22`;
+  if (homeSquareBar) homeSquareBar.style.width = `${Math.min(100, Math.round((squareCount / 22) * 100))}%`;
+
+  // 首頁個人戰績櫃
+  const trophyGems = document.getElementById('trophy-total-gems');
+  if (trophyGems) trophyGems.textContent = `${primeCount + squareCount} / 47`;
+
+  const trophyCerts = document.getElementById('trophy-total-certs');
+  if (trophyCerts) {
+    const certCount = (primeCount === 25 ? 1 : 0) + (squareCount >= 22 ? 1 : 0);
+    trophyCerts.textContent = `${certCount} / 2`;
+  }
+
+  const trophyPrimeBest = document.getElementById('trophy-prime-best');
+  if (trophyPrimeBest) {
+    const pList = getGrade7Leaderboard();
+    if (pList && pList.length > 0) {
+      const maxScore = Math.max(...pList.map(r => r.score || 0));
+      trophyPrimeBest.textContent = `${maxScore} 分`;
+    } else {
+      trophyPrimeBest.textContent = '無紀錄';
+    }
+  }
+
+  const trophySquareBest = document.getElementById('trophy-square-best');
+  if (trophySquareBest) {
+    const sList = getGrade8Leaderboard();
+    if (sList && sList.length > 0) {
+      const minSec = Math.min(...sList.map(r => r.seconds || 9999));
+      trophySquareBest.textContent = `${minSec} 秒`;
+    } else {
+      trophySquareBest.textContent = '無紀錄';
     }
   }
 

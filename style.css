@@ -34,9 +34,9 @@ body {
 
 /* 頂部導航 */
 .app-header {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(12px);
-  padding: 12px 24px;
+  padding: 10px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -45,12 +45,14 @@ body {
   top: 0;
   z-index: 100;
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  gap: 16px;
 }
 
 .logo-area {
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .logo-icon {
@@ -177,90 +179,63 @@ body {
   transform: scale(0.95);
 }
 
-/* ==================== 年級切換大標籤 ==================== */
-.grade-nav-wrapper {
-  background: white;
-  border-bottom: 2px solid #e2e8f0;
-  padding: 12px 20px;
-}
-
+/* ==================== 頂部導航切換按鈕 (與標題同一行) ==================== */
 .grade-nav {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.grade-btn {
-  flex: 1;
-  padding: 12px 18px;
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
+  flex: 1;
+  max-width: 580px;
+  margin: 0 16px;
+}
+
+.grade-btn {
+  padding: 8px 18px;
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  white-space: nowrap;
 }
 
 .grade-btn:hover {
   border-color: #93c5fd;
   background: #f8fafc;
   transform: translateY(-2px);
-  box-shadow: 0 8px 18px rgba(59, 130, 246, 0.12);
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.15);
 }
 
 .grade-btn:active {
-  transform: translateY(1px) scale(0.98);
+  transform: translateY(1px) scale(0.97);
 }
 
 .grade-btn.active {
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   border-color: #1d4ed8;
   color: white;
-  box-shadow: 0 8px 22px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
 .grade-emoji {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .grade-btn:hover .grade-emoji {
-  transform: scale(1.2) rotate(6deg);
+  transform: scale(1.15) rotate(6deg);
 }
 
 .grade-text {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 800;
-}
-
-.grade-tag {
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 10px;
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.grade-tag.active-tag {
-  background: #fef08a;
-  color: #854d0e;
-}
-
-.grade-btn.active .grade-tag {
-  background: rgba(255, 255, 255, 0.25);
-  color: white;
-}
-
-.grade-tag.soon {
-  background: #fef3c7;
-  color: #b45309;
+  letter-spacing: 0.3px;
 }
 
 /* 主面板容器 */
@@ -2890,5 +2865,554 @@ body {
 .leaderboard-table tbody tr.newly-submitted-row td {
   font-weight: 800;
 }
+
+/* ==================== 首頁大廳 (Home Portal) 樣式 ==================== */
+.home-hero-banner {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0284c7 100%);
+  border-radius: 26px;
+  padding: 34px 28px;
+  color: white;
+  text-align: center;
+  margin-bottom: 24px;
+  box-shadow: 0 12px 32px rgba(37, 99, 235, 0.28);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.home-hero-banner::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.home-hero-banner::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: -40px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 5px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  font-size: 0.82rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  letter-spacing: 1.5px;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.hero-title {
+  font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
+  font-size: 2.35rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+}
+
+.hero-slogan {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e0f2fe;
+  margin-bottom: 20px;
+  max-width: 620px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+}
+
+/* 今日數學冷知識 / 速算小重點卡片 */
+.hero-trivia-card {
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  border-radius: 20px;
+  padding: 16px 22px;
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: left;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+
+.hero-trivia-card:hover {
+  background: rgba(15, 23, 42, 0.52);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.trivia-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.trivia-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trivia-icon {
+  font-size: 1.15rem;
+}
+
+.trivia-title {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #fde047;
+  letter-spacing: 0.5px;
+}
+
+.btn-refresh-trivia {
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-refresh-trivia:hover {
+  background: rgba(255, 255, 255, 0.32);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-1px) scale(1.04);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.btn-refresh-trivia:active {
+  transform: translateY(1px) scale(0.96);
+}
+
+.trivia-content {
+  font-size: 0.96rem;
+  line-height: 1.65;
+  color: #f8fafc;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* 雙大卡片排版 */
+.home-portals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.portal-card {
+  background: #ffffff;
+  border-radius: 26px;
+  border: 2.5px solid #e2e8f0;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+.portal-card:hover {
+  transform: translateY(-6px) scale(1.015);
+  box-shadow: 0 20px 38px rgba(0, 0, 0, 0.12);
+}
+
+.portal-card:active {
+  transform: translateY(-2px) scale(0.99);
+}
+
+.portal-grade-7:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 20px 38px rgba(59, 130, 246, 0.25);
+}
+
+.portal-grade-8:hover {
+  border-color: #f59e0b;
+  box-shadow: 0 20px 38px rgba(245, 158, 11, 0.25);
+}
+
+.portal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.portal-grade-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 10px;
+}
+
+.portal-grade-7 .portal-grade-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1.5px solid #bfdbfe;
+}
+
+.portal-grade-8 .portal-grade-badge {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1.5px solid #fde68a;
+}
+
+.portal-status-badge {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.portal-status-badge.active-fire {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.portal-icon-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 52px;
+  margin-bottom: 8px;
+}
+
+.portal-main-icon {
+  font-size: 3rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.12));
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.portal-card:hover .portal-main-icon {
+  transform: scale(1.15) rotate(8deg);
+}
+
+.portal-sub-icon {
+  font-size: 1.5rem;
+}
+
+.portal-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #0f172a;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.portal-desc {
+  font-size: 0.9rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 16px;
+  min-height: 72px;
+}
+
+/* 進度條外框 */
+.portal-progress-box {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.progress-val {
+  font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 9px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.progress-bar-fill.fill-prime {
+  background: linear-gradient(90deg, #38bdf8, #2563eb);
+}
+
+.progress-bar-fill.fill-square {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+
+.portal-highlights {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+  min-height: 34px;
+  align-items: center;
+}
+
+.highlight-tag {
+  font-size: 0.76rem;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.portal-action-area {
+  margin-top: auto;
+  width: 100%;
+}
+
+.btn-portal-enter {
+  width: 100%;
+  padding: 13px 20px;
+  border-radius: 16px;
+  font-size: 0.98rem;
+  font-weight: 900;
+  cursor: pointer;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.btn-enter-grade7 {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+}
+
+.btn-enter-grade8 {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.35);
+}
+
+.portal-card:hover .btn-portal-enter {
+  transform: scale(1.02);
+}
+
+.portal-card:hover .btn-portal-enter .btn-arrow {
+  transform: translateX(4px);
+}
+
+.btn-arrow {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+/* 個人戰績榮譽櫃 */
+.home-trophy-shelf {
+  background: white;
+  border-radius: 26px;
+  border: 2px solid #e2e8f0;
+  padding: 24px 28px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.04);
+}
+
+.shelf-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.shelf-icon {
+  font-size: 1.5rem;
+}
+
+.shelf-title {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #0f172a;
+}
+
+.shelf-subtitle {
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.trophy-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+.trophy-stat-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.25s ease;
+}
+
+.trophy-stat-card:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.trophy-icon {
+  font-size: 1.85rem;
+  background: white;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.trophy-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.trophy-val {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #1e293b;
+  font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trophy-label {
+  font-size: 0.74rem;
+  color: #64748b;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 首頁手機響應式適配 */
+@media (max-width: 640px) {
+  .home-hero-banner {
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+  .hero-title {
+    font-size: 1.85rem;
+  }
+  .hero-slogan {
+    font-size: 0.92rem;
+  }
+  .home-portals-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .portal-card {
+    padding: 20px 18px;
+    border-radius: 20px;
+  }
+  .trophy-cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .trophy-stat-card {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .trophy-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 1.4rem;
+  }
+  .trophy-val {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 840px) {
+  .app-header {
+    flex-wrap: wrap;
+    padding: 10px 16px;
+    gap: 10px;
+  }
+  .logo-area {
+    order: 1;
+  }
+  .header-actions {
+    order: 2;
+  }
+  .grade-nav {
+    order: 3;
+    width: 100%;
+    margin: 4px 0 0;
+    max-width: 100%;
+    gap: 8px;
+  }
+  .grade-btn {
+    flex: 1;
+    padding: 8px 10px;
+  }
+  .grade-btn .grade-emoji {
+    font-size: 1.15rem;
+  }
+  .grade-text {
+    font-size: 0.88rem;
+  }
+}
+
 
 
