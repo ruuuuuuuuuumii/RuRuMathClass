@@ -239,9 +239,9 @@ function saveUnlockedSquare(base) {
   }
   updateHeaderAndCodexUI();
 
-  if (prevSize < 15 && current.size >= 15) {
+  if (prevSize < 22 && current.size >= 22) {
     sound.playFanfare();
-    showGlobalFeedback('🎉 恭喜！11~25 完全平方數已全數掌握，解鎖八年級大師證書！', 'success');
+    showGlobalFeedback('🎉 恭喜！11~32 完全平方數已全數掌握，解鎖八年級王者大師證書！', 'success');
   }
 }
 
@@ -254,7 +254,7 @@ function resetAllPrimeProgress() {
 }
 
 function resetAllSquareProgress() {
-  if (confirm('確定要清空八年級完全平方數紀錄重新挑戰嗎？\n（證書將會重新鎖定，直到再次收齊 15 組平方數）')) {
+  if (confirm('確定要清空八年級完全平方數紀錄重新挑戰嗎？\n（證書將會重新鎖定，直到再次收齊 22 組平方數）')) {
     localStorage.removeItem(KEY_SQUARES);
     updateHeaderAndCodexUI();
     showGlobalFeedback('八年級平方數進度已重置！', 'success');
@@ -874,7 +874,7 @@ function setupSquareCertificate() {
   const listEl = document.getElementById('square-cert-list');
   if (listEl) {
     listEl.innerHTML = '';
-    CORE_SQUARE_DATA.forEach(item => {
+    SQUARE_DATA.forEach(item => {
       const pill = document.createElement('span');
       pill.className = 'cert-square-pill';
       pill.textContent = `${item.base}² = ${item.square}`;
@@ -904,14 +904,14 @@ function updateSquareCertificateUI(count) {
   const progressBar = document.getElementById('square-cert-progress-bar');
   const badgeProgress = document.getElementById('square-codex-progress-text');
 
-  if (badgeProgress) badgeProgress.textContent = `${count} / 15`;
+  if (badgeProgress) badgeProgress.textContent = `${count} / 22`;
 
-  if (count < 15) {
+  if (count < 22) {
     if (lockedState) lockedState.classList.remove('hidden');
     if (unlockedState) unlockedState.classList.add('hidden');
-    if (progressText) progressText.textContent = `${count} / 15`;
-    if (remainingText) remainingText.textContent = `${15 - count}`;
-    if (progressBar) progressBar.style.width = `${(count / 15) * 100}%`;
+    if (progressText) progressText.textContent = `${count} / 22`;
+    if (remainingText) remainingText.textContent = `${22 - count}`;
+    if (progressBar) progressBar.style.width = `${(count / 22) * 100}%`;
   } else {
     if (lockedState) lockedState.classList.add('hidden');
     if (unlockedState) unlockedState.classList.remove('hidden');
