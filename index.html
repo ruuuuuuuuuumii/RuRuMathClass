@@ -4,22 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ru's math class - 國中數學自主練習平台</title>
-  <link rel="stylesheet" href="style.css?v=3.4">
+  <link rel="stylesheet" href="style.css?v=3.6">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <!-- 頂部導航列 (包含 Logo、大廳與年級切換按鈕、音效開關同一行) -->
+  <!-- 頂部導航列 (電腦版同一行，手機版第一行標題與喇叭、第二行大廳與專區) -->
   <header class="app-header">
-    <div class="logo-area" title="點擊返回大廳">
-      <div class="logo-icon">📐</div>
-      <div>
-        <h1 class="logo-title">Ru's math class</h1>
-        <p class="logo-subtitle">國中數學自主練習場 ‧ 探索數學的樂趣</p>
+    <div class="header-top-row">
+      <div class="logo-area" title="點擊返回大廳">
+        <div class="logo-icon">📐</div>
+        <div>
+          <h1 class="logo-title">Ru's math class</h1>
+          <p class="logo-subtitle">國中數學自主練習場 ‧ 探索數學的樂趣</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="icon-btn" id="btn-toggle-sound" title="音效開關">
+          <span id="sound-icon">🔊</span>
+        </button>
       </div>
     </div>
 
-    <!-- 年級與大廳切換標籤 (與標題同一行) -->
+    <!-- 年級與大廳切換標籤 (電腦版置中、手機版第二行獨立整排) -->
     <nav class="grade-nav">
       <button class="grade-btn active" data-grade="home-portal" id="nav-btn-home">
         <span class="grade-emoji">🏠</span>
@@ -34,12 +42,6 @@
         <span class="grade-text">八年級專區</span>
       </button>
     </nav>
-
-    <div class="header-actions">
-      <button class="icon-btn" id="btn-toggle-sound" title="音效開關">
-        <span id="sound-icon">🔊</span>
-      </button>
-    </div>
   </header>
 
   <!-- 主要內容區塊 -->
@@ -1031,6 +1033,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=3.4"></script>
+  <script src="game.js?v=3.6"></script>
 </body>
 </html>

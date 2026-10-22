@@ -48,11 +48,17 @@ body {
   gap: 16px;
 }
 
+/* 電腦版下 .header-top-row 展平，讓標題與喇叭成為 app-header 的直接彈性子項 */
+.header-top-row {
+  display: contents;
+}
+
 .logo-area {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  order: 1;
 }
 
 .logo-icon {
@@ -83,6 +89,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  order: 3;
 }
 
 .nav-btn {
@@ -188,6 +195,7 @@ body {
   flex: 1;
   max-width: 580px;
   margin: 0 16px;
+  order: 2;
 }
 
 .grade-btn {
@@ -1190,49 +1198,54 @@ body {
   }
 }
 
-/* 八年級完全平方數展示網格 */
+/* 八年級完全平方數展示網格 (緊湊舒適排版，避免底數與結果間距過大) */
 .square-groups-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 14px;
-  margin-bottom: 36px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-bottom: 28px;
 }
 
 .square-item-box {
   background: #f8fafc;
   border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 14px;
+  border-radius: 12px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 8px;
   transition: all 0.25s ease;
 }
 
 .square-item-box.unlocked {
   background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
   border-color: #f59e0b;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.12);
   transform: translateY(-2px);
 }
 
 .square-base-val {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #1e3a8a;
   font-family: 'Fredoka', sans-serif;
+  letter-spacing: -0.2px;
 }
 
 .square-arrow {
   color: #94a3b8;
+  font-size: 0.85rem;
   font-weight: 800;
+  opacity: 0.8;
 }
 
 .square-result-val {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 900;
   color: #92400e;
   font-family: 'Fredoka', sans-serif;
+  letter-spacing: -0.2px;
 }
 
 .square-item-box.locked {
@@ -3382,18 +3395,23 @@ body {
    手機與行動裝置深度適配 (Mobile Responsive Layout)
    ========================================================================== */
 @media (max-width: 840px) {
-  /* 1. 頂部導航列：標題與喇叭同一行、三大按鈕置於下方全寬並排 */
+  /* 1. 頂部導航列：第一行放標題與喇叭，第二行各大廳與專區按鈕 */
   .app-header {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  /* 第一行：左側標題，右側喇叭音效開關，兩端對齊 */
+  .header-top-row {
+    display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
-    gap: 8px 0;
+    width: 100%;
   }
 
   .logo-area {
-    order: 1;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -3403,26 +3421,25 @@ body {
   }
 
   .logo-icon {
-    font-size: 1.4rem;
+    font-size: 1.45rem;
     padding: 6px;
     border-radius: 10px;
     flex-shrink: 0;
   }
 
   .logo-title {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  /* 手機版隱藏超長副標題，讓標題與喇叭音效開關俐落並排在第一行 */
+  /* 手機版隱藏超長副標題，讓標題與喇叭同一行清爽俐落 */
   .logo-subtitle {
     display: none;
   }
 
   .header-actions {
-    order: 2;
     flex-shrink: 0;
     margin-left: 8px;
     display: flex;
@@ -3430,36 +3447,37 @@ body {
   }
 
   .icon-btn {
-    width: 38px;
-    height: 38px;
-    font-size: 1.15rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
   }
 
+  /* 第二行：大廳與專區三大按鈕，獨立一整排均勻分佈，不再擁擠 */
   .grade-nav {
-    order: 3;
-    width: 100%;
-    margin: 6px 0 0;
-    max-width: 100%;
     display: flex;
-    gap: 6px;
+    width: 100%;
+    margin: 0;
+    max-width: 100%;
+    gap: 8px;
   }
 
   .grade-btn {
     flex: 1;
     min-width: 0;
-    padding: 8px 4px;
-    gap: 4px;
+    padding: 9px 4px;
+    gap: 5px;
     justify-content: center;
   }
 
   .grade-btn .grade-emoji {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     flex-shrink: 0;
   }
 
   .grade-text {
-    font-size: 0.82rem;
+    font-size: 0.88rem;
     white-space: nowrap;
+    font-weight: 800;
   }
 
   /* 2. 主內容區縮小外邊距，大幅提升可用遊戲寬度 */
@@ -3647,6 +3665,32 @@ body {
     border-radius: 12px;
     justify-content: center;
     white-space: nowrap;
+  }
+
+  /* 6. 完全平方數寶典網格：緊湊排版，手機版每行 3~4 張，間距適中舒適 */
+  .square-groups-grid {
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+
+  .square-item-box {
+    padding: 6px 4px;
+    border-radius: 10px;
+    gap: 5px;
+    justify-content: center;
+  }
+
+  .square-base-val {
+    font-size: 0.95rem;
+  }
+
+  .square-arrow {
+    font-size: 0.72rem;
+  }
+
+  .square-result-val {
+    font-size: 1.05rem;
   }
 }
 
