@@ -186,6 +186,49 @@ body {
   transform: scale(0.95);
 }
 
+/* 頂部管理員登入按鈕 */
+.admin-btn {
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #475569;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+
+.admin-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.admin-btn:active {
+  transform: translateY(1px) scale(0.97);
+}
+
+.admin-btn.logged-in {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #f59e0b;
+  color: #92400e;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+.admin-btn.logged-in:hover {
+  background: linear-gradient(135deg, #fef08a 0%, #fcd34d 100%);
+  border-color: #d97706;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+}
+
 /* ==================== 頂部導航切換按鈕 (與標題同一行) ==================== */
 .grade-nav {
   display: flex;
@@ -2662,6 +2705,15 @@ body {
   box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
+/* 管理員專用元素控制 (預設隱藏，管理員登入後始顯示) */
+.admin-only {
+  display: none !important;
+}
+
+body.admin-mode .admin-only {
+  display: inline-flex !important;
+}
+
 .btn-clear-leaderboard {
   margin-left: auto;
   padding: 7px 14px;
@@ -3444,12 +3496,32 @@ body {
     margin-left: 8px;
     display: flex;
     align-items: center;
+    gap: 6px;
+  }
+
+  .admin-btn {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    gap: 4px;
+  }
+
+  .admin-btn-text {
+    display: none; /* 手機版第一行只顯示簡潔鎖頭圖示，維持標題與按鈕空間舒暢 */
+  }
+
+  .admin-btn {
+    padding: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    justify-content: center;
+    font-size: 1.15rem;
   }
 
   .icon-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.2rem;
+    width: 38px;
+    height: 38px;
+    font-size: 1.15rem;
   }
 
   /* 第二行：大廳與專區三大按鈕，獨立一整排均勻分佈，不再擁擠 */

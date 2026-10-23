@@ -268,6 +268,130 @@ const KEY_LEADERBOARD_PRIME = 'rus_math_leaderboard_prime_v1';
 const KEY_LEADERBOARD_SQUARE = 'rus_math_leaderboard_square_v1';
 const KEY_SAVED_PLAYER_NAME = 'rus_math_player_name';
 
+// ==========================================
+// 雲端全班即時共享排行榜 (Firebase Realtime Database)
+// ==========================================
+const FIREBASE_DB_URL = 'https://rus-math-class-default-rtdb.firebaseio.com';
+let isSyncingLeaderboard = false;
+
+// 從雲端同步七年級與八年級排行榜
+async function syncLeaderboardsFromCloud(callback) {
+  if (isSyncingLeaderboard) return;
+  isSyncingLeaderboard = true;
+  try {
+    const [res7, res8] = await Promise.all([
+      fetch(`${FIREBASE_DB_URL}/leaderboard_grade7.json`),
+      fetch(`${FIREBASE_DB_URL}/leaderboard_grade8.json`)
+    ]);
+
+    if (res7.ok) {
+      const data7 = await res7.json();
+      if (Array.isArray(data7)) {
+        localStorage.setItem(KEY_LEADERBOARD_PRIME, JSON.stringify(data7));
+      } else if (data7 && typeof data7 === 'object') {
+        const arr = Object.values(data7);
+        arr.sort((a, b) => (b.score !== a.score ? b.score - a.score : (b.accuracy !== a.accuracy ? b.accuracy - a.accuracy : b.id - a.id)));
+        localStorage.setItem(KEY_LEADERBOARD_PRIME, JSON.stringify(arr.slice(0, 50)));
+      }
+    }
+
+    if (res8.ok) {
+      const data8 = await res8.json();
+      if (Array.isArray(data8)) {
+        localStorage.setItem(KEY_LEADERBOARD_SQUARE, JSON.stringify(data8));
+      } else if (data8 && typeof data8 === 'object') {
+        const arr = Object.values(data8);
+        arr.sort((a, b) => (a.seconds !== b.seconds ? a.seconds - b.seconds : (a.moves !== b.moves ? a.moves - b.moves : b.id - a.id)));
+        localStorage.setItem(KEY_LEADERBOARD_SQUARE, JSON.stringify(arr.slice(0, 50)));
+      }
+    }
+
+    if (typeof callback === 'function') callback();
+  } catch (err) {
+    console.warn('雲端排行榜同步失敗，目前使用本機快取:', err);
+  } finally {
+    isSyncingLeaderboard = false;
+  }
+}
+
+// 戰績上傳至雲端
+async function pushGrade7ScoreToCloud() {
+  try {
+    const list = getGrade7Leaderboard();
+    await fetch(`${FIREBASE_DB_URL}/leaderboard_grade7.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(list)
+    });
+  } catch (e) {
+    console.warn('雲端上傳七年級戰績失敗:', e);
+  }
+}
+
+async function pushGrade8ScoreToCloud() {
+  try {
+    const list = getGrade8Leaderboard();
+    await fetch(`${FIREBASE_DB_URL}/leaderboard_grade8.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(list)
+    });
+  } catch (e) {
+    console.warn('雲端上傳八年級戰績失敗:', e);
+  }
+}
+
+// 管理員清除雲端紀錄
+async function clearGrade7CloudLeaderboard() {
+  try {
+    await fetch(`${FIREBASE_DB_URL}/leaderboard_grade7.json`, { method: 'DELETE' });
+  } catch (e) {
+    console.warn('雲端清除七年級排行榜失敗:', e);
+  }
+}
+
+async function clearGrade8CloudLeaderboard() {
+  try {
+    await fetch(`${FIREBASE_DB_URL}/leaderboard_grade8.json`, { method: 'DELETE' });
+  } catch (e) {
+    console.warn('雲端清除八年級排行榜失敗:', e);
+  }
+}
+
+// 管理員身分與權限控制 (密碼：1216)
+const ADMIN_PASSWORD = '1216';
+const KEY_ADMIN_LOGGED_IN = 'rus_math_admin_logged_in';
+
+function isAdminLoggedIn() {
+  return localStorage.getItem(KEY_ADMIN_LOGGED_IN) === 'true';
+}
+
+function updateAdminUI() {
+  const isLogged = isAdminLoggedIn();
+  const btnAdmin = document.getElementById('btn-admin-login');
+  if (isLogged) {
+    document.body.classList.add('admin-mode');
+    if (btnAdmin) {
+      btnAdmin.classList.add('logged-in');
+      btnAdmin.title = '管理員已登入 (點擊可登出)';
+      const icon = btnAdmin.querySelector('.admin-btn-icon');
+      const text = btnAdmin.querySelector('.admin-btn-text');
+      if (icon) icon.textContent = '👑';
+      if (text) text.textContent = '已登入';
+    }
+  } else {
+    document.body.classList.remove('admin-mode');
+    if (btnAdmin) {
+      btnAdmin.classList.remove('logged-in');
+      btnAdmin.title = '管理員登入';
+      const icon = btnAdmin.querySelector('.admin-btn-icon');
+      const text = btnAdmin.querySelector('.admin-btn-text');
+      if (icon) icon.textContent = '🔐';
+      if (text) text.textContent = '管理員登入';
+    }
+  }
+}
+
 function escapeHtml(str) {
   if (!str) return '';
   return String(str).replace(/[&<>'"]/g, tag => ({
@@ -303,6 +427,7 @@ function saveGrade7LeaderboardEntry(entry) {
   } catch (e) {
     console.warn('儲存七年級排行榜失敗:', e);
   }
+  pushGrade7ScoreToCloud();
 }
 
 let currentGrade7LeaderboardFilter = 'all';
@@ -363,11 +488,13 @@ function setupGrade7Leaderboard() {
   const btnClear = document.getElementById('btn-clear-prime-leaderboard');
   if (btnClear) {
     btnClear.addEventListener('click', () => {
-      if (confirm('確定要清除質數館的本機英雄榜紀錄嗎？\n（此操作無法復原）')) {
+      if (!isAdminLoggedIn()) return;
+      if (confirm('【管理員操作】確定要清空七年級質數英雄榜的所有紀錄嗎？\n（此操作無法復原，並將同步清除雲端紀錄）')) {
         localStorage.removeItem(KEY_LEADERBOARD_PRIME);
+        clearGrade7CloudLeaderboard();
         highlightedGrade7Id = null;
         renderGrade7Leaderboard();
-        showGlobalFeedback('質數館英雄榜紀錄已清除！', 'success');
+        showGlobalFeedback('✅ 管理員已清空質數英雄榜！(已同步清除雲端)', 'success');
       }
     });
   }
@@ -486,6 +613,7 @@ function saveGrade8LeaderboardEntry(entry) {
   } catch (e) {
     console.warn('儲存八年級排行榜失敗:', e);
   }
+  pushGrade8ScoreToCloud();
 }
 
 let currentGrade8LeaderboardFilter = 'all';
@@ -546,11 +674,13 @@ function setupGrade8Leaderboard() {
   const btnClear = document.getElementById('btn-clear-square-leaderboard');
   if (btnClear) {
     btnClear.addEventListener('click', () => {
-      if (confirm('確定要清除平方根館的本機極速榜紀錄嗎？\n（此操作無法復原）')) {
+      if (!isAdminLoggedIn()) return;
+      if (confirm('【管理員操作】確定要清空八年級完全平方數極速榜的所有紀錄嗎？\n（此操作無法復原，並將同步清除雲端紀錄）')) {
         localStorage.removeItem(KEY_LEADERBOARD_SQUARE);
+        clearGrade8CloudLeaderboard();
         highlightedGrade8Id = null;
         renderGrade8Leaderboard();
-        showGlobalFeedback('平方根館極速榜紀錄已清除！', 'success');
+        showGlobalFeedback('✅ 管理員已清空完全平方數極速榜！(已同步清除雲端)', 'success');
       }
     });
   }
@@ -673,6 +803,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSquareCertificate();
   setupGrade8Leaderboard();
 
+  // 雲端排行榜初始化背景同步
+  syncLeaderboardsFromCloud();
+
+  updateAdminUI();
   updateHeaderAndCodexUI();
 });
 
@@ -930,8 +1064,10 @@ function setupSubTabs() {
         updateHeaderAndCodexUI();
       } else if (target === 'prime-leaderboard-view') {
         renderGrade7Leaderboard();
+        syncLeaderboardsFromCloud(() => renderGrade7Leaderboard());
       } else if (target === 'square-leaderboard-view') {
         renderGrade8Leaderboard();
+        syncLeaderboardsFromCloud(() => renderGrade8Leaderboard());
       }
     });
   });
@@ -1004,6 +1140,92 @@ function setupModals() {
   if (modalGuide) {
     modalGuide.addEventListener('click', (e) => {
       if (e.target === modalGuide) close();
+    });
+  }
+
+  setupAdminAuthModal();
+}
+
+function setupAdminAuthModal() {
+  const modal = document.getElementById('modal-admin-auth');
+  const btnClose = document.getElementById('btn-close-admin-auth');
+  const btnCancel = document.getElementById('btn-cancel-admin-auth');
+  const btnConfirm = document.getElementById('btn-confirm-admin-auth');
+  const input = document.getElementById('input-admin-password');
+  const msgEl = document.getElementById('admin-auth-msg');
+
+  const closeModal = () => {
+    if (modal) modal.classList.add('hidden');
+    if (input) input.value = '';
+    if (msgEl) {
+      msgEl.classList.add('hidden');
+      msgEl.textContent = '';
+    }
+  };
+
+  const btnAdmin = document.getElementById('btn-admin-login');
+  if (btnAdmin) {
+    btnAdmin.addEventListener('click', () => {
+      if (isAdminLoggedIn()) {
+        if (confirm('確定要登出管理員身分嗎？\n（登出後將隱藏排行榜清除功能）')) {
+          localStorage.removeItem(KEY_ADMIN_LOGGED_IN);
+          updateAdminUI();
+          showGlobalFeedback('已安全登出管理員身分', 'info');
+        }
+      } else {
+        if (input) input.value = '';
+        if (msgEl) {
+          msgEl.classList.add('hidden');
+          msgEl.textContent = '';
+        }
+        if (modal) {
+          modal.classList.remove('hidden');
+          setTimeout(() => input && input.focus(), 120);
+        }
+      }
+    });
+  }
+
+  if (btnClose) btnClose.addEventListener('click', closeModal);
+  if (btnCancel) btnCancel.addEventListener('click', closeModal);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  const doVerify = () => {
+    const enteredPassword = input ? input.value.trim() : '';
+    if (enteredPassword === ADMIN_PASSWORD) {
+      localStorage.setItem(KEY_ADMIN_LOGGED_IN, 'true');
+      if (modal) modal.classList.add('hidden');
+      sound.playHit();
+      updateAdminUI();
+      showGlobalFeedback('👑 管理員登入成功！已顯示排行榜清除按鈕', 'success');
+    } else {
+      sound.playBuzz();
+      if (msgEl) {
+        msgEl.classList.remove('hidden');
+        msgEl.className = 'submit-status-msg status-error';
+        msgEl.textContent = '❌ 密碼錯誤！請輸入正確的管理員密碼';
+      }
+      if (input) {
+        input.classList.add('error-shake');
+        setTimeout(() => input.classList.remove('error-shake'), 400);
+        input.select();
+      }
+    }
+  };
+
+  if (btnConfirm) btnConfirm.addEventListener('click', doVerify);
+  if (input) {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        doVerify();
+      } else if (e.key === 'Escape') {
+        closeModal();
+      }
     });
   }
 }
