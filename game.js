@@ -316,7 +316,7 @@ function mergeLeaderboardLists(cloudList, localList, comparator, limit = 100) {
   return merged.slice(0, limit);
 }
 
-// 從雲端同步七年級與八年級排行榜（增量安全合併）
+// 從雲端同步七年級與八年級排行榜（雲端權威同步，保證全班看到完全一致的榜單）
 async function syncLeaderboardsFromCloud(callback) {
   if (isSyncingLeaderboard) return;
   isSyncingLeaderboard = true;
@@ -329,25 +329,23 @@ async function syncLeaderboardsFromCloud(callback) {
     if (res7.ok) {
       const data7 = await res7.json();
       const cloudList7 = parseLeaderboardCloudData(data7);
-      const localList7 = getGrade7Leaderboard();
-      const merged7 = mergeLeaderboardLists(cloudList7, localList7, (a, b) => {
+      cloudList7.sort((a, b) => {
         if (b.score !== a.score) return b.score - a.score;
         if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
         return (b.id || 0) - (a.id || 0);
       });
-      localStorage.setItem(KEY_LEADERBOARD_PRIME, JSON.stringify(merged7));
+      localStorage.setItem(KEY_LEADERBOARD_PRIME, JSON.stringify(cloudList7.slice(0, 100)));
     }
 
     if (res8.ok) {
       const data8 = await res8.json();
       const cloudList8 = parseLeaderboardCloudData(data8);
-      const localList8 = getGrade8Leaderboard();
-      const merged8 = mergeLeaderboardLists(cloudList8, localList8, (a, b) => {
+      cloudList8.sort((a, b) => {
         if (a.seconds !== b.seconds) return a.seconds - b.seconds;
         if (a.moves !== b.moves) return a.moves - b.moves;
         return (b.id || 0) - (a.id || 0);
       });
-      localStorage.setItem(KEY_LEADERBOARD_SQUARE, JSON.stringify(merged8));
+      localStorage.setItem(KEY_LEADERBOARD_SQUARE, JSON.stringify(cloudList8.slice(0, 100)));
     }
 
     if (typeof callback === 'function') callback();
@@ -367,6 +365,10 @@ async function pushGrade7ScoreToCloud(entry) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry)
     });
+    syncLeaderboardsFromCloud(() => {
+      renderGrade7Leaderboard();
+      updateHeaderAndCodexUI();
+    });
   } catch (e) {
     console.warn('雲端上傳七年級戰績失敗:', e);
   }
@@ -379,6 +381,10 @@ async function pushGrade8ScoreToCloud(entry) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entry)
+    });
+    syncLeaderboardsFromCloud(() => {
+      renderGrade8Leaderboard();
+      updateHeaderAndCodexUI();
     });
   } catch (e) {
     console.warn('雲端上傳八年級戰績失敗:', e);
