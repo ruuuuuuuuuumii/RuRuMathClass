@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Ru's math class - 國中數學自主練習平台</title>
-  <link rel="stylesheet" href="style.css?v=3.9">
+  <link rel="stylesheet" href="style.css?v=4.4">
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -177,14 +177,14 @@
           <div class="trophy-stat-card">
             <div class="trophy-icon">💎</div>
             <div class="trophy-info">
-              <span class="trophy-val" id="trophy-total-gems">0 / 47</span>
+              <span class="trophy-val" id="trophy-total-gems">0 / 59</span>
               <span class="trophy-label">已收集數學寶石總數</span>
             </div>
           </div>
           <div class="trophy-stat-card">
             <div class="trophy-icon">📜</div>
             <div class="trophy-info">
-              <span class="trophy-val" id="trophy-total-certs">0 / 2</span>
+              <span class="trophy-val" id="trophy-total-certs">0 / 3</span>
               <span class="trophy-label">大師榮譽證書張數</span>
             </div>
           </div>
@@ -245,6 +245,22 @@
             <h3 class="unit-title">質數館：100 以內的質數</h3>
             <p class="unit-desc">
               包含「質數神射手（射氣球）」與「25 質數收集館」，訓練直覺判斷 100 以內質數並背熟 25 個質數！
+            </p>
+            <div class="unit-footer">
+              <span class="unit-tag">因數與倍數</span>
+              <span class="unit-enter-pill">直接點擊進入 ➔</span>
+            </div>
+          </div>
+
+          <!-- 倍數檢驗所館 (開放中) -->
+          <div class="unit-card active-card" id="card-enter-multiple-pavilion" role="button" tabindex="0" title="點擊直接進入倍數檢驗所">
+            <div class="unit-card-header">
+              <span class="unit-icon">🔍</span>
+              <span class="unit-status active">🔥 全新開放</span>
+            </div>
+            <h3 class="unit-title">倍數檢驗所：2、3、4、5、8、9、11</h3>
+            <p class="unit-desc">
+              分關卡多重標籤檢驗！末位數、位數和、奇偶差秒懂診斷，徹底攻克段考必考倍數判別！
             </p>
             <div class="unit-footer">
               <span class="unit-tag">因數與倍數</span>
@@ -472,6 +488,16 @@
                     <div class="progress-fill" id="cert-progress-bar" style="width: 0%"></div>
                   </div>
                 </div>
+
+                <!-- 預先設定受獎人姓名區 -->
+                <div class="cert-name-config-box">
+                  <div class="name-config-label">✍️ 證書受獎人姓名：</div>
+                  <div class="name-config-input-wrap">
+                    <input type="text" class="cert-preset-input" id="prime-cert-name-preset" placeholder="請輸入姓名或座號" maxlength="15">
+                    <span class="name-config-hint">（集滿 25 個質數後將直接印製在大師證書上）</span>
+                  </div>
+                </div>
+
                 <button class="btn-go-balloon" id="btn-cert-go-play">
                   <span>🎈 前往射氣球收集質數</span>
                 </button>
@@ -482,6 +508,13 @@
                   <span class="banner-sparkle">✨</span>
                   <span>恭喜！25 個質數全數收集完成！榮譽大師證書已為您正式解鎖！</span>
                   <span class="banner-sparkle">✨</span>
+                </div>
+
+                <!-- 證書上方姓名修改工具列 -->
+                <div class="cert-recipient-toolbar">
+                  <span class="toolbar-label">🎖️ 證書受獎人姓名：</span>
+                  <input type="text" class="cert-recipient-input" id="prime-cert-recipient-input" placeholder="請輸入姓名/座號" maxlength="15">
+                  <span class="toolbar-hint">✏️ 點此可隨時修改，列印或存檔時自動呈現！</span>
                 </div>
 
                 <div class="cert-card" id="cert-printable">
@@ -577,6 +610,396 @@
                 <button class="btn-primary" id="btn-go-balloon-from-leaderboard">前往射氣球挑戰</button>
               </div>
             </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 7年級專屬主題：倍數檢驗所 (多重標籤與特徵診斷) -->
+      <div id="grade-7-multiple-pavilion" class="grade-view">
+        
+        <div class="pavilion-header">
+          <button class="btn-back-to-hub" id="btn-back-to-grade7-hub-from-multiple">
+            <span>← 返回七年級主題選單</span>
+          </button>
+          <div class="pavilion-title-area">
+            <span class="pavilion-badge">因數與倍數</span>
+            <h2>🔍 倍數檢驗所（多重標籤特徵診斷）</h2>
+          </div>
+        </div>
+
+        <nav class="sub-tabs">
+          <button class="sub-tab-btn active" data-subtarget="multiple-game-view">
+            <span class="tab-icon">🏷️</span>
+            <span>闖關檢驗室</span>
+          </button>
+          <button class="sub-tab-btn" data-subtarget="multiple-guide-view">
+            <span class="tab-icon">💡</span>
+            <span>倍數判別秘笈速查</span>
+          </button>
+          <button class="sub-tab-btn" data-subtarget="multiple-cert-view">
+            <span class="tab-icon">🎓</span>
+            <span>特警大師證書</span>
+          </button>
+        </nav>
+
+        <!-- 子分頁 1：闖關檢驗室 -->
+        <div id="multiple-game-view" class="sub-panel active">
+          
+          <!-- 關卡選擇卡片列 -->
+          <div class="stage-nav-container">
+            <div class="stage-nav-header">
+              <span class="stage-nav-title">🎯 選擇挑戰關卡：</span>
+              <span class="stage-nav-tip">點選關卡可切換練習目標</span>
+            </div>
+            <div class="stage-buttons-grid">
+              <button type="button" class="stage-btn active" data-stage="1" id="stage-btn-1">
+                <div class="stage-btn-top">
+                  <span class="stage-badge">第 1 關</span>
+                  <span class="stage-stars" id="stage-stars-1">🔹🔹🔹</span>
+                </div>
+                <div class="stage-name">尾數特攻隊</div>
+                <div class="stage-targets">2、5、4、8 的倍數</div>
+              </button>
+              <button type="button" class="stage-btn" data-stage="2" id="stage-btn-2">
+                <div class="stage-btn-top">
+                  <span class="stage-badge">第 2 關</span>
+                  <span class="stage-stars" id="stage-stars-2">🔹🔹🔹</span>
+                </div>
+                <div class="stage-name">數字和密碼</div>
+                <div class="stage-targets">3、9 的倍數</div>
+              </button>
+              <button type="button" class="stage-btn" data-stage="3" id="stage-btn-3">
+                <div class="stage-btn-top">
+                  <span class="stage-badge">第 3 關</span>
+                  <span class="stage-stars" id="stage-stars-3">🔹🔹🔹</span>
+                </div>
+                <div class="stage-name">奇偶跳棋戰</div>
+                <div class="stage-targets">11 的倍數判別</div>
+              </button>
+              <button type="button" class="stage-btn" data-stage="4" id="stage-btn-4">
+                <div class="stage-btn-top">
+                  <span class="stage-badge">第 4 關 🔥</span>
+                  <span class="stage-stars" id="stage-stars-4">🔹🔹🔹</span>
+                </div>
+                <div class="stage-name">全能大師挑戰</div>
+                <div class="stage-targets">全特徵綜合大考驗</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 遊戲進行區 (HUD + 工作台 + 標籤選區 + 送出按鈕) -->
+          <div class="inspector-arena">
+            <div class="game-hud inspector-hud">
+              <div class="hud-item">
+                <span class="hud-label">目前關卡</span>
+                <span class="hud-value stage-label" id="inspector-current-stage-name">第 1 關：尾數特攻隊</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">題目進度</span>
+                <span class="hud-value" id="inspector-progress-text">1 / 5</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">目前得分</span>
+                <span class="hud-value" id="inspector-score">0</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">連擊 Combo</span>
+                <span class="hud-value combo" id="inspector-combo">0</span>
+              </div>
+            </div>
+
+            <!-- 主檢驗工作台 -->
+            <div class="inspector-workbench">
+              <div class="inspector-prompt">
+                <span class="prompt-icon">🔍</span>
+                <span id="inspector-instruction-text">請檢驗下列數字是誰的倍數？（符合的標籤皆可點選；若都不符合請選「以上皆非」）</span>
+              </div>
+
+              <!-- 待檢驗的大數字展示卡 -->
+              <div class="inspector-target-card">
+                <div class="target-digit-label">待檢驗數字</div>
+                <div class="target-digit-display" id="inspector-target-number">3,168</div>
+                <div class="target-digit-hint" id="inspector-target-hint">💡 提示：觀察末幾位數或計算數字總和</div>
+              </div>
+
+              <!-- 標籤選擇區 (動態渲染) -->
+              <div class="inspector-tags-grid" id="inspector-tags-container">
+                <!-- 標籤按鈕例如：2、5、4、8、以上皆非 -->
+              </div>
+
+              <!-- 控制操作按鈕 -->
+              <div class="inspector-actions">
+                <button type="button" class="btn-primary btn-submit-inspect" id="btn-submit-inspect" disabled>
+                  <span>✅ 送出檢驗</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 即時診斷卡彈窗 (當有漏選或誤選時展示) -->
+            <div class="arena-overlay hidden" id="overlay-multiple-diagnostic">
+              <div class="overlay-card diagnostic-card">
+                <div class="diagnostic-header">
+                  <div class="diag-icon">🔍</div>
+                  <h3 id="diag-title">檢驗所特徵診斷報告</h3>
+                  <div class="diag-num-badge" id="diag-number-badge">檢驗數字：3,168</div>
+                </div>
+                <div class="diagnostic-body" id="diag-body-content">
+                  <!-- 動態注入診斷項目 (漏選、誤選、口訣說明) -->
+                </div>
+                <div class="diagnostic-footer">
+                  <button type="button" class="btn-primary" id="btn-diag-continue">💡 我懂了，前往下一題 ➔</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 關卡結算彈窗 -->
+            <div class="arena-overlay hidden" id="overlay-multiple-stageover">
+              <div class="overlay-card gameover-card">
+                <h2 id="stageover-title">🎉 關卡檢驗完成！</h2>
+                <div class="stage-stars-display" id="stageover-stars">🔹🔹🔹</div>
+                <div class="result-stats">
+                  <div class="stat-box">
+                    <span class="stat-num" id="stageover-final-score">0</span>
+                    <span class="stat-text">關卡得分</span>
+                  </div>
+                  <div class="stat-box">
+                    <span class="stat-num" id="stageover-final-acc">100%</span>
+                    <span class="stat-text">正確率</span>
+                  </div>
+                  <div class="stat-box">
+                    <span class="stat-num" id="stageover-final-time">0s</span>
+                    <span class="stat-text">花費時間</span>
+                  </div>
+                </div>
+
+                <!-- 榮譽大師證書領取入口 (4關通關時自動呈現) -->
+                <div class="stageover-cert-box hidden" id="stageover-cert-box">
+                  <div class="cert-prompt-badge">🎓 榮譽特警大師證書已解鎖！</div>
+                  <p class="cert-prompt-text">已成功通關全部 4 大關卡！請確認您的受獎人姓名：</p>
+                  <div class="cert-prompt-input-row">
+                    <input type="text" class="submit-name-input" id="stageover-cert-name-input" placeholder="請輸入姓名或座號" maxlength="15">
+                    <button type="button" class="btn-claim-cert" id="btn-stageover-go-cert">前往頒發大師證書 🏆</button>
+                  </div>
+                </div>
+
+                <div class="gameover-actions">
+                  <button type="button" class="btn-start-game" id="btn-stageover-replay">再練一次此關 🔄</button>
+                  <button type="button" class="btn-primary-alt" id="btn-stageover-next-stage">挑戰下一關 ➡️</button>
+                  <button type="button" class="btn-secondary" id="btn-stageover-to-guide">查看倍數秘笈 💡</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="feedback-banner hidden" id="inspector-feedback"></div>
+          </div>
+        </div>
+
+        <!-- 子分頁 2：倍數判別秘笈速查 -->
+        <div id="multiple-guide-view" class="sub-panel">
+          <div class="guide-grid-container">
+            <div class="guide-header-hero">
+              <h3>💡 七年級倍數判別全方位秘笈</h3>
+              <p>掌握三大流派核心口訣，告別繁複的長除法，一眼看穿數字的倍數特徵！</p>
+            </div>
+
+            <div class="rules-cards-grid">
+              <!-- 尾數流：2, 5 -->
+              <div class="rule-detail-card">
+                <div class="rule-card-badge tag-tail">尾數流 ‧ 看末 1 位</div>
+                <h4>🟢 2 與 5 的倍數</h4>
+                <div class="rule-desc-box">
+                  <p>• <strong>2 的倍數</strong>：個位數字為 <strong>0、2、4、6、8</strong>（偶數）。</p>
+                  <p>• <strong>5 的倍數</strong>：個位數字為 <strong>0 或 5</strong>。</p>
+                  <div class="rule-example">
+                    <span class="ex-label">例</span> 3,45<strong>8</strong> 是 2 的倍數；7,12<strong>5</strong> 是 5 的倍數。
+                  </div>
+                </div>
+              </div>
+
+              <!-- 尾數流：4, 8 -->
+              <div class="rule-detail-card">
+                <div class="rule-card-badge tag-tail-multi">尾數流 ‧ 看末 2 或 3 位</div>
+                <h4>🔵 4 與 8 的倍數</h4>
+                <div class="rule-desc-box">
+                  <p>• <strong>4 的倍數</strong>：<strong>末兩位數</strong>能被 4 整除（或末兩位為 00）。</p>
+                  <p>• <strong>8 的倍數</strong>：<strong>末三位數</strong>能被 8 整除（或末三位為 000）。</p>
+                  <div class="rule-example">
+                    <span class="ex-label">例</span> 5,7<strong>24</strong> ➔ 24 ÷ 4 = 6（是 4 的倍數）；<br>
+                    9,<strong>168</strong> ➔ 168 ÷ 8 = 21（是 8 的倍數）。
+                  </div>
+                </div>
+              </div>
+
+              <!-- 總和流：3, 9 -->
+              <div class="rule-detail-card">
+                <div class="rule-card-badge tag-sum">數字和流 ‧ 各位數相加</div>
+                <h4>🟠 3 與 9 的倍數</h4>
+                <div class="rule-desc-box">
+                  <p>• <strong>3 的倍數</strong>：<strong>各個位數和</strong>能被 3 整除。</p>
+                  <p>• <strong>9 的倍數</strong>：<strong>各個位數和</strong>能被 9 整除。</p>
+                  <div class="rule-example">
+                    <span class="ex-label">例</span> <strong>528</strong> ➔ 5 + 2 + 8 = <strong>15</strong>（15 能被 3 整除，但不能被 9 整除 ➔ 是 3 的倍數，不是 9 的倍數）。<br>
+                    <strong>729</strong> ➔ 7 + 2 + 9 = <strong>18</strong>（18 能被 9 整除 ➔ 既是 3 也是 9 的倍數）。
+                  </div>
+                </div>
+              </div>
+
+              <!-- 奇偶流：11 -->
+              <div class="rule-detail-card">
+                <div class="rule-card-badge tag-eleven">跳棋流 ‧ 奇偶位相減</div>
+                <h4>💎 11 的倍數</h4>
+                <div class="rule-desc-box">
+                  <p>• <strong>11 的倍數</strong>：<strong>（奇數位數字和）－（偶數位數字和）之差為 0 或 11 的倍數</strong>。</p>
+                  <div class="rule-example">
+                    <span class="ex-label">例</span> <strong>3,168</strong>：<br>
+                    奇數位（個位、百位）：8 + 1 = <strong>9</strong><br>
+                    偶數位（十位、千位）：6 + 3 = <strong>9</strong><br>
+                    相減差：|9 - 9| = <strong>0</strong> ➔ 0 是 11 的 0 倍，因此 3,168 必為 11 的倍數！
+                  </div>
+                </div>
+              </div>
+
+              <!-- 段考大魔王陷阱卡 -->
+              <div class="rule-detail-card trap-card">
+                <div class="rule-card-badge tag-trap">⚠️ 段考大魔王避坑指引</div>
+                <h4>🔥 常見陷阱合數（以上皆非！）</h4>
+                <div class="rule-desc-box">
+                  <p>段考最喜歡出長得很像質數、或很像 3 或 9 的倍數的數字：</p>
+                  <p>• <strong>91</strong> ＝ 7 × 13（不是 2,3,4,5,8,9,11 的倍數）➔ <strong>選以上皆非！</strong></p>
+                  <p>• <strong>51</strong> ＝ 3 × 17（5+1=6 是 3 的倍數，千萬別當成質數！）</p>
+                  <p>• <strong>87</strong> ＝ 3 × 29（8+7=15 是 3 的倍數，非質數！）</p>
+                  <p>• <strong>119</strong> ＝ 7 × 17（不是 2,3,4,5,8,9,11 的倍數）➔ <strong>選以上皆非！</strong></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 子分頁 3：倍數判別特警大師證書 -->
+        <div id="multiple-cert-view" class="sub-panel">
+          <div class="certificate-section" id="multiple-cert-section">
+            
+            <!-- 未解鎖狀態卡片 -->
+            <div class="cert-locked-card" id="multiple-cert-locked-state">
+              <div class="lock-shield-icon">🛡️</div>
+              <h3 class="locked-title">倍數判別特警大師證書（尚未解鎖）</h3>
+              <p class="locked-desc">
+                在闖關檢驗室中，完成 <strong>第 1 到第 4 關的倍數檢驗挑戰</strong>（每關獲得至少 💎 評等，全部通關），即可獲得專屬榮譽大師證書！
+              </p>
+              <div class="locked-progress-box">
+                <div class="progress-labels">
+                  <span>通關進度：<strong id="multiple-cert-progress-text">0 / 4</strong> 關</span>
+                  <span>已累積鑽石：<strong id="multiple-cert-stars-text">0 / 12</strong> 💎</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" id="multiple-cert-progress-bar" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <!-- 預先設定受獎人姓名區 -->
+              <div class="cert-name-config-box">
+                <div class="name-config-label">✍️ 證書受獎人姓名：</div>
+                <div class="name-config-input-wrap">
+                  <input type="text" class="cert-preset-input" id="multiple-cert-name-preset" placeholder="請輸入姓名或座號" maxlength="15">
+                  <span class="name-config-hint">（全通關後將直接印製在大師證書上，可隨時修改）</span>
+                </div>
+              </div>
+
+              <button type="button" class="btn-go-balloon" id="btn-multiple-go-play">
+                <span>🎯 前往檢驗室闖關</span>
+              </button>
+            </div>
+
+            <!-- 已解鎖狀態證書卡片 -->
+            <div class="cert-unlocked-wrapper hidden" id="multiple-cert-unlocked-state">
+              <div class="cert-congrats-banner">
+                <span class="banner-sparkle">✨</span>
+                <span>太厲害了！你已成功通關 4 大關卡！「倍數判別特警大師證書」已為您授予！</span>
+                <span class="banner-sparkle">✨</span>
+              </div>
+
+              <!-- 證書上方姓名修改工具列 -->
+              <div class="cert-recipient-toolbar">
+                <span class="toolbar-label">🎖️ 證書受獎人姓名：</span>
+                <input type="text" class="cert-recipient-input" id="multiple-cert-recipient-input" placeholder="請輸入姓名/座號" maxlength="15">
+                <span class="toolbar-hint">✏️ 點此可隨時修改，列印或存檔時自動呈現！</span>
+              </div>
+
+              <div class="cert-card" id="multiple-cert-printable">
+                <div class="cert-border">
+                  <div class="cert-ribbon">🏆 國家級認證 ‧ 卓越數學思維 🏆</div>
+                  <h1 class="cert-title">國中數學倍數判別特警大師證書</h1>
+                  <p class="cert-subtitle">Ru's math class ‧ Certificate of Divisibility Mastery (2, 3, 4, 5, 8, 9, 11)</p>
+                  
+                  <div class="cert-body">
+                    茲證明 學生
+                    <input type="text" class="student-name-input" id="multiple-student-name" placeholder="點擊輸入姓名/座號" value="數學特警官">
+                    <br>
+                    已在 Ru's math class 平台精熟 <strong>2、3、4、5、8、9、11</strong> 之末位數、位數和與奇偶位差之倍數判別法則，並成功攻破 4 大關卡特徵檢驗，數感靈敏、邏輯清晰，特頒此證以資表揚！
+                  </div>
+
+                  <!-- 4 大關卡通關認證徽章 -->
+                  <div class="cert-multiple-badges-grid" id="multiple-cert-badges">
+                    <div class="cert-stage-badge-item">
+                      <span class="cert-badge-icon">🟢</span>
+                      <div class="cert-badge-info">
+                        <strong>第 1 關：尾數特攻隊</strong>
+                        <span>2、5、4、8 檢驗認證</span>
+                      </div>
+                    </div>
+                    <div class="cert-stage-badge-item">
+                      <span class="cert-badge-icon">🟠</span>
+                      <div class="cert-badge-info">
+                        <strong>第 2 關：數字和密碼</strong>
+                        <span>3、9 檢驗認證</span>
+                      </div>
+                    </div>
+                    <div class="cert-stage-badge-item">
+                      <span class="cert-badge-icon">💎</span>
+                      <div class="cert-badge-info">
+                        <strong>第 3 關：奇偶跳棋戰</strong>
+                        <span>11 檢驗認證</span>
+                      </div>
+                    </div>
+                    <div class="cert-stage-badge-item">
+                      <span class="cert-badge-icon">🔥</span>
+                      <div class="cert-badge-info">
+                        <strong>第 4 關：全能大師挑戰</strong>
+                        <span>7 大特徵全制霸</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cert-honor-stars-box">
+                    <span>💎 獲得榮譽鑽石：<strong id="multiple-cert-total-stars">12</strong> / 12 顆</span>
+                  </div>
+
+                  <div class="cert-footer">
+                    <div class="cert-meta">
+                      <span>認證日期：<span id="multiple-cert-date">2026/10/23</span></span>
+                      <span>認證單位：Ru's math class 數學特警隊</span>
+                    </div>
+                    <div class="cert-stamp">
+                      <span class="stamp-org">RuRuMin</span>
+                      <span class="stamp-text">特警認證</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cert-actions">
+                <button type="button" class="btn-cert-print" id="btn-print-multiple-cert">
+                  <span class="btn-icon">🖨️</span>
+                  <span>列印 / 另存為證書</span>
+                </button>
+                <button type="button" class="btn-cert-reset" id="btn-reset-multiple-progress">
+                  <span class="btn-icon">🔄</span>
+                  <span>重置進度重新挑戰</span>
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -908,6 +1331,16 @@
                     <div class="progress-fill" id="square-cert-progress-bar" style="width: 0%"></div>
                   </div>
                 </div>
+
+                <!-- 設定受獎人姓名區 -->
+                <div class="cert-name-config-box">
+                  <div class="name-config-label">✍️ 證書受獎人姓名：</div>
+                  <div class="name-config-input-wrap">
+                    <input type="text" class="cert-preset-input" id="square-cert-name-preset" placeholder="請輸入姓名或座號" maxlength="15">
+                    <span class="name-config-hint">（集滿 22 組平方數後將直接印製在王者證書上）</span>
+                  </div>
+                </div>
+
                 <button class="btn-go-balloon" id="btn-square-go-play">
                   <span>⚡ 前往完全平方數連連看</span>
                 </button>
@@ -918,6 +1351,13 @@
                   <span class="banner-sparkle">✨</span>
                   <span>太棒了！11~32 完全平方數已全數精熟掌握！王者大師證書為您正式頒發！</span>
                   <span class="banner-sparkle">✨</span>
+                </div>
+
+                <!-- 證書上方姓名修改工具列 -->
+                <div class="cert-recipient-toolbar">
+                  <span class="toolbar-label">🎖️ 證書受獎人姓名：</span>
+                  <input type="text" class="cert-recipient-input" id="square-cert-recipient-input" placeholder="請輸入姓名/座號" maxlength="15">
+                  <span class="toolbar-hint">✏️ 點此可隨時修改，列印或存檔時自動呈現！</span>
                 </div>
 
                 <div class="cert-card" id="square-cert-printable">
@@ -1062,6 +1502,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=3.9"></script>
+  <script src="game.js?v=4.4"></script>
 </body>
 </html>

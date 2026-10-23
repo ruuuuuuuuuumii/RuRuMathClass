@@ -790,12 +790,14 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSubTabs();
   setupAudioToggle();
   setupModals();
+  setupGlobalNameSync();
   
   // 七年級初始化
   renderPrimeCodex();
   setupBalloonGame();
   setupPrimeCertificate();
   setupGrade7Leaderboard();
+  setupMultipleInspector();
 
   // 八年級初始化
   renderSquareCodex();
@@ -895,28 +897,12 @@ function setupHomePortal() {
     if (e) e.stopPropagation();
     const navBtn = document.getElementById('nav-btn-grade7') || document.querySelector('.grade-btn[data-grade="grade-7"]');
     if (navBtn) navBtn.click();
-    const hub = document.getElementById('grade-7-hub');
-    const pavilion = document.getElementById('grade-7-prime-pavilion');
-    if (hub && pavilion) {
-      hub.classList.remove('active');
-      pavilion.classList.add('active');
-      renderPrimeCodex();
-      updateHeaderAndCodexUI();
-    }
   };
 
   const goToGrade8 = (e) => {
     if (e) e.stopPropagation();
     const navBtn = document.getElementById('nav-btn-grade8') || document.querySelector('.grade-btn[data-grade="grade-8"]');
     if (navBtn) navBtn.click();
-    const hub = document.getElementById('grade-8-hub');
-    const pavilion = document.getElementById('grade-8-square-pavilion');
-    if (hub && pavilion) {
-      hub.classList.remove('active');
-      pavilion.classList.add('active');
-      renderSquareCodex();
-      updateHeaderAndCodexUI();
-    }
   };
 
   if (portalGrade7) portalGrade7.addEventListener('click', goToGrade7);
@@ -967,6 +953,26 @@ function setupGradeNavigation() {
       const targetPanel = document.getElementById(activeGrade);
       if (targetPanel) targetPanel.classList.add('active');
 
+      // 點擊七年級專區：一律返回七年級大廳主題選單
+      if (activeGrade === 'grade-7') {
+        const primePav = document.getElementById('grade-7-prime-pavilion');
+        const multPav = document.getElementById('grade-7-multiple-pavilion');
+        const hub7 = document.getElementById('grade-7-hub');
+        if (primePav) primePav.classList.remove('active');
+        if (multPav) multPav.classList.remove('active');
+        if (hub7) hub7.classList.add('active');
+        if (balloonGame.isRunning) balloonGame.endGame(false);
+      }
+
+      // 點擊八年級專區：一律返回八年級大廳主題選單
+      if (activeGrade === 'grade-8') {
+        const squarePav = document.getElementById('grade-8-square-pavilion');
+        const hub8 = document.getElementById('grade-8-hub');
+        if (squarePav) squarePav.classList.remove('active');
+        if (hub8) hub8.classList.add('active');
+        if (dualMatchGame.isRunning) dualMatchGame.stopTimer();
+      }
+
       if (activeGrade !== 'grade-7' && balloonGame.isRunning) balloonGame.endGame(false);
       if (activeGrade !== 'grade-8' && dualMatchGame.isRunning) dualMatchGame.stopTimer();
 
@@ -1001,6 +1007,34 @@ function setupPavilionNavigation() {
     btnBackGrade7.addEventListener('click', () => {
       if (balloonGame.isRunning) balloonGame.endGame(false);
       grade7Pavilion.classList.remove('active');
+      grade7Hub.classList.add('active');
+    });
+  }
+
+  // 七年級：倍數檢驗所
+  const cardEnterMultiple = document.getElementById('card-enter-multiple-pavilion');
+  const btnBackGrade7FromMultiple = document.getElementById('btn-back-to-grade7-hub-from-multiple');
+  const grade7MultiplePavilion = document.getElementById('grade-7-multiple-pavilion');
+
+  if (cardEnterMultiple && grade7Hub && grade7MultiplePavilion) {
+    const enterMultipleAction = () => {
+      grade7Hub.classList.remove('active');
+      if (grade7Pavilion) grade7Pavilion.classList.remove('active');
+      grade7MultiplePavilion.classList.add('active');
+      multipleInspector.init();
+    };
+    cardEnterMultiple.addEventListener('click', enterMultipleAction);
+    cardEnterMultiple.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        enterMultipleAction();
+      }
+    });
+  }
+
+  if (btnBackGrade7FromMultiple && grade7Hub && grade7MultiplePavilion) {
+    btnBackGrade7FromMultiple.addEventListener('click', () => {
+      grade7MultiplePavilion.classList.remove('active');
       grade7Hub.classList.add('active');
     });
   }
@@ -1068,6 +1102,8 @@ function setupSubTabs() {
       } else if (target === 'square-leaderboard-view') {
         renderGrade8Leaderboard();
         syncLeaderboardsFromCloud(() => renderGrade8Leaderboard());
+      } else if (target === 'multiple-cert-view') {
+        updateMultipleCertificateUI();
       }
     });
   });
@@ -1250,16 +1286,18 @@ function updateHeaderAndCodexUI() {
 
   const primeCount = unlockedPrimes.size;
   const squareCount = unlockedSquares.size;
+  const { totalStars: multipleGems, clearedCount: multipleCleared } = typeof getMultipleStageStars === 'function' ? getMultipleStageStars() : { totalStars: 0, clearedCount: 0 };
+  const totalMathGems = primeCount + squareCount + multipleGems;
 
   // 頂部導航累計數字
   const countEl = document.getElementById('header-codex-count');
   if (countEl) {
     if (activeGrade === 'grade-7') {
-      countEl.textContent = `${primeCount}/25`;
+      countEl.textContent = `${primeCount + multipleGems}/37`;
     } else if (activeGrade === 'grade-8') {
       countEl.textContent = `${squareCount}/22`;
     } else {
-      countEl.textContent = `${primeCount + squareCount}/47`;
+      countEl.textContent = `${totalMathGems}/59`;
     }
   }
 
@@ -1277,12 +1315,12 @@ function updateHeaderAndCodexUI() {
 
   // 首頁個人戰績櫃
   const trophyGems = document.getElementById('trophy-total-gems');
-  if (trophyGems) trophyGems.textContent = `${primeCount + squareCount} / 47`;
+  if (trophyGems) trophyGems.textContent = `${totalMathGems} / 59`;
 
   const trophyCerts = document.getElementById('trophy-total-certs');
   if (trophyCerts) {
-    const certCount = (primeCount === 25 ? 1 : 0) + (squareCount >= 22 ? 1 : 0);
-    trophyCerts.textContent = `${certCount} / 2`;
+    const certCount = (primeCount === 25 ? 1 : 0) + (squareCount >= 22 ? 1 : 0) + (multipleCleared >= 4 ? 1 : 0);
+    trophyCerts.textContent = `${certCount} / 3`;
   }
 
   const trophyPrimeBest = document.getElementById('trophy-prime-best');
@@ -2285,3 +2323,739 @@ const dualMatchGame = {
 function setupDualMatchGame() {
   dualMatchGame.init();
 }
+
+// ==========================================
+// 七年級：倍數判別輔助與診斷邏輯
+// ==========================================
+function checkDivisibility(num) {
+  const str = String(num);
+  const digits = str.split('').map(Number);
+  const len = digits.length;
+  
+  // 2: 個位數字為偶數
+  const last1 = digits[len - 1];
+  const is2 = last1 % 2 === 0;
+
+  // 5: 個位數字為 0 或 5
+  const is5 = last1 === 0 || last1 === 5;
+
+  // 4: 末兩位數能被 4 整除
+  const last2 = len >= 2 ? Number(str.slice(-2)) : num;
+  const is4 = last2 % 4 === 0;
+
+  // 8: 末三位數能被 8 整除
+  const last3 = len >= 3 ? Number(str.slice(-3)) : num;
+  const is8 = last3 % 8 === 0;
+
+  // 3 與 9: 各個位數總和
+  const sumDigits = digits.reduce((a, b) => a + b, 0);
+  const is3 = sumDigits % 3 === 0;
+  const is9 = sumDigits % 9 === 0;
+
+  // 11: 奇數位數字和 與 偶數位數字和 之差
+  let oddSum = 0;
+  let evenSum = 0;
+  for (let i = 0; i < len; i++) {
+    const digit = digits[len - 1 - i];
+    if (i % 2 === 0) {
+      oddSum += digit;
+    } else {
+      evenSum += digit;
+    }
+  }
+  const diff11 = Math.abs(oddSum - evenSum);
+  const is11 = diff11 % 11 === 0;
+
+  return {
+    num,
+    str,
+    digits,
+    last1,
+    last2,
+    last3,
+    sumDigits,
+    oddSum,
+    evenSum,
+    diff11,
+    divisible: {
+      2: is2,
+      5: is5,
+      4: is4,
+      8: is8,
+      3: is3,
+      9: is9,
+      11: is11
+    }
+  };
+}
+
+function getDivisibilityExplanation(info, divisor, shouldBeDivisible) {
+  switch (divisor) {
+    case 2:
+      if (shouldBeDivisible) {
+        return `個位數字是 <strong>${info.last1}</strong>（偶數），所以是 2 的倍數。`;
+      } else {
+        return `個位數字是 <strong>${info.last1}</strong>（奇數），因此不是 2 的倍數。`;
+      }
+    case 5:
+      if (shouldBeDivisible) {
+        return `個位數字是 <strong>${info.last1}</strong>（為 0 或 5），所以是 5 的倍數。`;
+      } else {
+        return `個位數字是 <strong>${info.last1}</strong>（不是 0 也不是 5），因此不是 5 的倍數。`;
+      }
+    case 4:
+      if (shouldBeDivisible) {
+        return `末兩位數是 <strong>${info.last2}</strong>（${info.last2} ÷ 4 = ${info.last2 / 4} 能整除），所以是 4 的倍數。`;
+      } else {
+        return `末兩位數是 <strong>${info.last2}</strong>（${info.last2} ÷ 4 = ${Math.floor(info.last2 / 4)} 餘 ${info.last2 % 4}），因此不是 4 的倍數。`;
+      }
+    case 8:
+      if (shouldBeDivisible) {
+        return `末三位數是 <strong>${info.last3}</strong>（${info.last3} ÷ 8 = ${info.last3 / 8} 能整除），所以是 8 的倍數。`;
+      } else {
+        return `末三位數是 <strong>${info.last3}</strong>（${info.last3} ÷ 8 = ${Math.floor(info.last3 / 8)} 餘 ${info.last3 % 8}），因此不是 8 的倍數。`;
+      }
+    case 3:
+      const sumStr = info.digits.join(' + ');
+      if (shouldBeDivisible) {
+        return `各個位數和 <strong>${sumStr} = ${info.sumDigits}</strong>，能被 3 整除（${info.sumDigits} ÷ 3 = ${info.sumDigits / 3}），所以是 3 的倍數。`;
+      } else {
+        return `各個位數和 <strong>${sumStr} = ${info.sumDigits}</strong>，不能被 3 整除（餘 ${info.sumDigits % 3}），因此不是 3 的倍數。`;
+      }
+    case 9:
+      const sumStr9 = info.digits.join(' + ');
+      if (shouldBeDivisible) {
+        return `各個位數和 <strong>${sumStr9} = ${info.sumDigits}</strong>，能被 9 整除（${info.sumDigits} ÷ 9 = ${info.sumDigits / 9}），所以是 9 的倍數。`;
+      } else {
+        return `各個位數和 <strong>${sumStr9} = ${info.sumDigits}</strong>，不能被 9 整除（餘 ${info.sumDigits % 9}），因此不是 9 的倍數。`;
+      }
+    case 11:
+      if (shouldBeDivisible) {
+        return `奇數位和 (${info.oddSum}) 與 偶數位和 (${info.evenSum}) 之差為 <strong>|${info.oddSum} - ${info.evenSum}| = ${info.diff11}</strong>，為 11 的倍數（差為 0 或 11 的倍數），所以是 11 的倍數。`;
+      } else {
+        return `奇數位和 (${info.oddSum}) 與 偶數位和 (${info.evenSum}) 之差為 <strong>|${info.oddSum} - ${info.evenSum}| = ${info.diff11}</strong>，不是 11 的倍數，因此不是 11 的倍數。`;
+      }
+    default:
+      return '';
+  }
+}
+
+// ==========================================
+// 七年級：倍數檢驗所 (Multiple Inspector) 遊戲核心
+// ==========================================
+const multipleInspector = {
+  currentStage: 1,
+  currentQuestionIndex: 0,
+  score: 0,
+  combo: 0,
+  correctCount: 0,
+  startTime: 0,
+  currentQuestion: null,
+  selectedTags: new Set(),
+  isEvaluating: false,
+  hasBoundEvents: false,
+
+  stages: {
+    1: {
+      name: '第 1 關：尾數特攻隊',
+      targets: [2, 5, 4, 8],
+      questionCount: 5,
+      instruction: '請檢驗下列數字是誰的倍數？（符合的標籤皆可多選；若都不符合請選「以上皆非」）',
+      tags: [
+        { val: 2, label: '2 的倍數', icon: '🟢' },
+        { val: 5, label: '5 的倍數', icon: '🟡' },
+        { val: 4, label: '4 的倍數', icon: '🔵' },
+        { val: 8, label: '8 的倍數', icon: '🟣' },
+        { val: 'none', label: '🚫 以上皆非', icon: '⚪' }
+      ],
+      curated: [
+        1324, 2580, 3168, 7425, 1056, 973, 5418, 4080, 835, 1226, 3000, 1079, 6248, 5175, 4132
+      ]
+    },
+    2: {
+      name: '第 2 關：數字和密碼',
+      targets: [3, 9],
+      questionCount: 5,
+      instruction: '請將各位數相加！檢驗下列數字是 3 或 9 的倍數：（若皆非請選「以上皆非」）',
+      tags: [
+        { val: 3, label: '3 的倍數', icon: '🟠' },
+        { val: 9, label: '9 的倍數', icon: '🔴' },
+        { val: 'none', label: '🚫 以上皆非', icon: '⚪' }
+      ],
+      curated: [
+        51, 87, 729, 528, 111, 1233, 2457, 91, 452, 715, 3339, 882, 1008, 9243, 614
+      ]
+    },
+    3: {
+      name: '第 3 關：奇偶跳棋戰',
+      targets: [11],
+      questionCount: 5,
+      instruction: '計算奇數位數字和與偶數位數字和之差！檢驗是否為 11 的倍數：',
+      tags: [
+        { val: 11, label: '11 的倍數', icon: '💎' },
+        { val: 'none', label: '🚫 以上皆非', icon: '⚪' }
+      ],
+      curated: [
+        1331, 1001, 3168, 935, 2376, 1452, 7194, 523, 1245, 6421, 2816, 91, 5808, 8195, 342
+      ]
+    },
+    4: {
+      name: '第 4 關：全能大師挑戰',
+      targets: [2, 3, 4, 5, 8, 9, 11],
+      questionCount: 10,
+      instruction: '全特徵綜合大考驗！請點亮所有符合的倍數身分，全都不符合請選「以上皆非」：',
+      tags: [
+        { val: 2, label: '2 的倍數', icon: '🟢' },
+        { val: 3, label: '3 的倍數', icon: '🟠' },
+        { val: 4, label: '4 的倍數', icon: '🔵' },
+        { val: 5, label: '5 的倍數', icon: '🟡' },
+        { val: 8, label: '8 的倍數', icon: '🟣' },
+        { val: 9, label: '9 的倍數', icon: '🔴' },
+        { val: 11, label: '11 的倍數', icon: '💎' },
+        { val: 'none', label: '🚫 以上皆非', icon: '⚪' }
+      ],
+      curated: [
+        3168, 2520, 1452, 990, 1080, 7040, 1296, 91, 119, 221, 289, 528, 7920, 4950, 1320
+      ]
+    }
+  },
+
+  init() {
+    this.renderStageNavStars();
+    if (!this.hasBoundEvents) {
+      this.bindEvents();
+      this.hasBoundEvents = true;
+    }
+    this.startStage(this.currentStage);
+  },
+
+  renderStageNavStars() {
+    for (let s = 1; s <= 4; s++) {
+      const stars = Number(localStorage.getItem(`rus_math_inspector_stars_${s}`) || 0);
+      const starEl = document.getElementById(`stage-stars-${s}`);
+      if (starEl) {
+        let text = '';
+        for (let i = 0; i < 3; i++) {
+          text += i < stars ? '💎' : '🔹';
+        }
+        starEl.textContent = text;
+      }
+    }
+  },
+
+  bindEvents() {
+    // 關卡切換按鈕
+    const stageBtns = document.querySelectorAll('.stage-btn');
+    stageBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const stageNum = Number(btn.dataset.stage);
+        if (stageNum) {
+          stageBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.startStage(stageNum);
+        }
+      });
+    });
+
+    // 送出檢驗按鈕
+    const btnSubmit = document.getElementById('btn-submit-inspect');
+    if (btnSubmit) {
+      btnSubmit.addEventListener('click', () => this.submitAnswer());
+    }
+
+    // 診斷卡「我懂了，前往下一題」
+    const btnDiagContinue = document.getElementById('btn-diag-continue');
+    if (btnDiagContinue) {
+      btnDiagContinue.addEventListener('click', () => {
+        const overlay = document.getElementById('overlay-multiple-diagnostic');
+        if (overlay) overlay.classList.add('hidden');
+        this.advanceToNextQuestion();
+      });
+    }
+
+    // 關卡結算彈窗按鈕
+    const btnReplay = document.getElementById('btn-stageover-replay');
+    if (btnReplay) {
+      btnReplay.addEventListener('click', () => {
+        const overlay = document.getElementById('overlay-multiple-stageover');
+        if (overlay) overlay.classList.add('hidden');
+        this.startStage(this.currentStage);
+      });
+    }
+
+    const btnNextStage = document.getElementById('btn-stageover-next-stage');
+    if (btnNextStage) {
+      btnNextStage.addEventListener('click', () => {
+        const overlay = document.getElementById('overlay-multiple-stageover');
+        if (overlay) overlay.classList.add('hidden');
+        const next = this.currentStage < 4 ? this.currentStage + 1 : 1;
+        const targetBtn = document.getElementById(`stage-btn-${next}`);
+        if (targetBtn) targetBtn.click();
+      });
+    }
+
+    const btnToGuide = document.getElementById('btn-stageover-to-guide');
+    if (btnToGuide) {
+      btnToGuide.addEventListener('click', () => {
+        const overlay = document.getElementById('overlay-multiple-stageover');
+        if (overlay) overlay.classList.add('hidden');
+        const guideTab = document.querySelector('#grade-7-multiple-pavilion .sub-tab-btn[data-subtarget="multiple-guide-view"]');
+        if (guideTab) guideTab.click();
+      });
+    }
+  },
+
+  startStage(stageNum) {
+    this.currentStage = stageNum;
+    const stage = this.stages[stageNum];
+    this.currentQuestionIndex = 0;
+    this.score = 0;
+    this.combo = 0;
+    this.correctCount = 0;
+    this.startTime = Date.now();
+    this.isEvaluating = false;
+
+    // 更新 HUD
+    const nameEl = document.getElementById('inspector-current-stage-name');
+    if (nameEl) nameEl.textContent = stage.name;
+    const promptEl = document.getElementById('inspector-instruction-text');
+    if (promptEl) promptEl.textContent = stage.instruction;
+
+    this.updateHUD();
+
+    // 生成題庫隊列 (隨機打亂)
+    this.questionQueue = this.generateQuestionsForStage(stageNum);
+    this.renderCurrentQuestion();
+  },
+
+  generateQuestionsForStage(stageNum) {
+    const stage = this.stages[stageNum];
+    const pool = [...stage.curated];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, stage.questionCount);
+  },
+
+  renderCurrentQuestion() {
+    if (this.currentQuestionIndex >= this.questionQueue.length) {
+      this.finishStage();
+      return;
+    }
+
+    const targetNum = this.questionQueue[this.currentQuestionIndex];
+    this.currentQuestion = targetNum;
+    this.selectedTags.clear();
+    this.isEvaluating = false;
+
+    // 更新題目卡
+    const numDisplay = document.getElementById('inspector-target-number');
+    if (numDisplay) {
+      numDisplay.textContent = Number(targetNum).toLocaleString();
+      numDisplay.classList.remove('pulse-success', 'pulse-error');
+    }
+
+    // 依關卡動態渲染標籤
+    this.renderTags();
+    this.updateSubmitButton();
+    this.updateHUD();
+  },
+
+  renderTags() {
+    const container = document.getElementById('inspector-tags-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const stage = this.stages[this.currentStage];
+    stage.tags.forEach(tag => {
+      const pill = document.createElement('button');
+      pill.type = 'button';
+      pill.className = `inspector-tag-pill ${tag.val === 'none' ? 'tag-none' : ''}`;
+      pill.dataset.val = String(tag.val);
+      pill.innerHTML = `
+        <span class="tag-icon-bullet">${tag.icon}</span>
+        <span class="tag-label-text">${tag.label}</span>
+      `;
+
+      pill.addEventListener('click', () => {
+        if (this.isEvaluating) return;
+        sound.playPop();
+        const val = tag.val;
+
+        if (val === 'none') {
+          // 點擊以上皆非：清空其他，只留 none
+          if (this.selectedTags.has('none')) {
+            this.selectedTags.delete('none');
+          } else {
+            this.selectedTags.clear();
+            this.selectedTags.add('none');
+          }
+        } else {
+          // 點擊特定數字：清除 none，切換目前數字
+          this.selectedTags.delete('none');
+          if (this.selectedTags.has(val)) {
+            this.selectedTags.delete(val);
+          } else {
+            this.selectedTags.add(val);
+          }
+        }
+
+        // 更新各標籤的 selected 樣式
+        container.querySelectorAll('.inspector-tag-pill').forEach(p => {
+          const pVal = p.dataset.val === 'none' ? 'none' : Number(p.dataset.val);
+          if (this.selectedTags.has(pVal)) {
+            p.classList.add('selected');
+          } else {
+            p.classList.remove('selected');
+          }
+        });
+
+        this.updateSubmitButton();
+      });
+
+      container.appendChild(pill);
+    });
+  },
+
+  updateSubmitButton() {
+    const btn = document.getElementById('btn-submit-inspect');
+    if (btn) {
+      btn.disabled = this.selectedTags.size === 0 || this.isEvaluating;
+    }
+  },
+
+  updateHUD() {
+    const progressEl = document.getElementById('inspector-progress-text');
+    const scoreEl = document.getElementById('inspector-score');
+    const comboEl = document.getElementById('inspector-combo');
+    const stage = this.stages[this.currentStage];
+
+    if (progressEl) progressEl.textContent = `${this.currentQuestionIndex + 1} / ${stage.questionCount}`;
+    if (scoreEl) scoreEl.textContent = this.score;
+    if (comboEl) comboEl.textContent = this.combo;
+  },
+
+  submitAnswer() {
+    if (this.selectedTags.size === 0 || this.isEvaluating) return;
+    this.isEvaluating = true;
+    this.updateSubmitButton();
+
+    const num = this.currentQuestion;
+    const stage = this.stages[this.currentStage];
+    const info = checkDivisibility(num);
+
+    // 計算符合的真實倍數
+    const actualMatches = stage.targets.filter(t => info.divisible[t]);
+    const isActuallyNone = actualMatches.length === 0;
+
+    // 比對使用者答案
+    let isCorrect = false;
+    const userSelectedNumbers = Array.from(this.selectedTags).filter(x => x !== 'none');
+    const userSelectedNone = this.selectedTags.has('none');
+
+    if (isActuallyNone) {
+      isCorrect = userSelectedNone && userSelectedNumbers.length === 0;
+    } else {
+      isCorrect = !userSelectedNone &&
+        userSelectedNumbers.length === actualMatches.length &&
+        actualMatches.every(m => userSelectedNumbers.includes(m));
+    }
+
+    if (isCorrect) {
+      sound.playHit();
+      this.combo += 1;
+      this.correctCount += 1;
+      const pts = 100 + (this.combo - 1) * 20;
+      this.score += pts;
+      this.updateHUD();
+
+      const numDisplay = document.getElementById('inspector-target-number');
+      if (numDisplay) numDisplay.classList.add('pulse-success');
+
+      showGlobalFeedback(`🎉 完美檢驗！特徵完全吻合 (+${pts}分)`, 'success');
+
+      setTimeout(() => {
+        this.advanceToNextQuestion();
+      }, 750);
+
+    } else {
+      sound.playBuzz();
+      this.combo = 0;
+      this.updateHUD();
+
+      // 開啟診斷報告
+      this.showDiagnosticModal(num, info, stage, actualMatches, isActuallyNone, userSelectedNumbers, userSelectedNone);
+    }
+  },
+
+  showDiagnosticModal(num, info, stage, actualMatches, isActuallyNone, userSelectedNumbers, userSelectedNone) {
+    const overlay = document.getElementById('overlay-multiple-diagnostic');
+    const numBadge = document.getElementById('diag-number-badge');
+    const bodyContent = document.getElementById('diag-body-content');
+    if (!overlay || !bodyContent) return;
+
+    if (numBadge) numBadge.textContent = `待檢驗數字：${Number(num).toLocaleString()}`;
+    bodyContent.innerHTML = '';
+
+    // 1. 若真的是以上皆非，但學生沒選或選了其他數字
+    if (isActuallyNone) {
+      const card = document.createElement('div');
+      card.className = 'diag-item diag-missed';
+      let reasonText = `此數字在目前關卡中（${stage.targets.join('、')} 的倍數）<strong>全部都不符合</strong>，正確答案應為 <strong>【🚫 以上皆非】</strong>！`;
+      if (userSelectedNumbers.length > 0) {
+        reasonText += `<br>您的誤選：${userSelectedNumbers.map(n => getDivisibilityExplanation(info, n, false)).join('<br>')}`;
+      }
+      card.innerHTML = `
+        <div class="diag-item-header">💡 正確答案為【以上皆非】</div>
+        <div class="diag-item-text">${reasonText}</div>
+      `;
+      bodyContent.appendChild(card);
+    } else {
+      // 2. 學生誤選了「以上皆非」
+      if (userSelectedNone) {
+        const card = document.createElement('div');
+        card.className = 'diag-item diag-wrong';
+        card.innerHTML = `
+          <div class="diag-item-header">❌ 誤選了【以上皆非】</div>
+          <div class="diag-item-text">數字 <strong>${num}</strong> 其實符合：<strong>${actualMatches.join('、')} 的倍數</strong>，不可選「以上皆非」喔！</div>
+        `;
+        bodyContent.appendChild(card);
+      }
+
+      // 3. 漏選的倍數 (Missing)
+      const missed = actualMatches.filter(m => !userSelectedNumbers.includes(m));
+      missed.forEach(m => {
+        const card = document.createElement('div');
+        card.className = 'diag-item diag-missed';
+        card.innerHTML = `
+          <div class="diag-item-header">⚠️ 漏選了：${m} 的倍數</div>
+          <div class="diag-item-text">${getDivisibilityExplanation(info, m, true)}</div>
+        `;
+        bodyContent.appendChild(card);
+      });
+
+      // 4. 多選/誤選的倍數 (Wrongly picked)
+      const wrong = userSelectedNumbers.filter(u => !actualMatches.includes(u));
+      wrong.forEach(w => {
+        const card = document.createElement('div');
+        card.className = 'diag-item diag-wrong';
+        card.innerHTML = `
+          <div class="diag-item-header">❌ 誤選了：${w} 的倍數</div>
+          <div class="diag-item-text">${getDivisibilityExplanation(info, w, false)}</div>
+        `;
+        bodyContent.appendChild(card);
+      });
+
+      // 5. 正確選取的倍數 (Correctly picked)
+      const correctPicks = userSelectedNumbers.filter(u => actualMatches.includes(u));
+      if (correctPicks.length > 0) {
+        const card = document.createElement('div');
+        card.className = 'diag-item diag-correct';
+        card.innerHTML = `
+          <div class="diag-item-header">✅ 答對項目：${correctPicks.join('、')} 的倍數</div>
+          <div class="diag-item-text">判別正確！${correctPicks.map(c => getDivisibilityExplanation(info, c, true)).join('<br>')}</div>
+        `;
+        bodyContent.appendChild(card);
+      }
+    }
+
+    overlay.classList.remove('hidden');
+  },
+
+  advanceToNextQuestion() {
+    this.currentQuestionIndex += 1;
+    this.renderCurrentQuestion();
+  },
+
+  finishStage() {
+    sound.playHit();
+    const stage = this.stages[this.currentStage];
+    const totalQ = stage.questionCount;
+    const acc = Math.round((this.correctCount / totalQ) * 100);
+    const elapsedSeconds = Math.max(1, Math.round((Date.now() - this.startTime) / 1000));
+
+    // 星級評定
+    let stars = 0;
+    if (acc === 100) stars = 3;
+    else if (acc >= 80) stars = 2;
+    else if (acc >= 60) stars = 1;
+
+    // 儲存最佳星級
+    const savedStars = Number(localStorage.getItem(`rus_math_inspector_stars_${this.currentStage}`) || 0);
+    if (stars > savedStars) {
+      localStorage.setItem(`rus_math_inspector_stars_${this.currentStage}`, String(stars));
+    }
+    this.renderStageNavStars();
+    updateMultipleCertificateUI();
+    updateHeaderAndCodexUI();
+
+    const { clearedCount } = getMultipleStageStars();
+    const stageoverCertBox = document.getElementById('stageover-cert-box');
+    if (clearedCount >= 4) {
+      if (stageoverCertBox) stageoverCertBox.classList.remove('hidden');
+      showGlobalFeedback('🎓 恭喜解鎖「特警大師證書」！已可在大師證書專區查看與列印！', 'success');
+    } else {
+      if (stageoverCertBox) stageoverCertBox.classList.add('hidden');
+    }
+
+    // 彈出結算卡
+    const overlay = document.getElementById('overlay-multiple-stageover');
+    const titleEl = document.getElementById('stageover-title');
+    const starsEl = document.getElementById('stageover-stars');
+    const scoreEl = document.getElementById('stageover-final-score');
+    const accEl = document.getElementById('stageover-final-acc');
+    const timeEl = document.getElementById('stageover-final-time');
+
+    if (titleEl) {
+      titleEl.textContent = stars === 3 ? '🏆 完美通關！特徵檢驗大師' : (stars >= 1 ? '🎉 關卡檢驗完成！' : '💪 差一點點！再挑戰一次！');
+    }
+    if (starsEl) {
+      let sText = '';
+      for (let i = 0; i < 3; i++) sText += i < stars ? '💎' : '🔹';
+      starsEl.textContent = sText;
+    }
+    if (scoreEl) scoreEl.textContent = this.score;
+    if (accEl) accEl.textContent = `${acc}% (${this.correctCount}/${totalQ} 題)`;
+    if (timeEl) timeEl.textContent = `${elapsedSeconds} 秒`;
+
+    if (overlay) overlay.classList.remove('hidden');
+  }
+};
+
+function getMultipleStageStars() {
+  const starsMap = {};
+  let totalStars = 0;
+  let clearedCount = 0;
+  for (let s = 1; s <= 4; s++) {
+    const star = Number(localStorage.getItem(`rus_math_inspector_stars_${s}`) || 0);
+    starsMap[s] = star;
+    totalStars += star;
+    if (star > 0) clearedCount++;
+  }
+  return { starsMap, totalStars, clearedCount };
+}
+
+function updateMultipleCertificateUI() {
+  const { totalStars, clearedCount } = getMultipleStageStars();
+  const lockedState = document.getElementById('multiple-cert-locked-state');
+  const unlockedState = document.getElementById('multiple-cert-unlocked-state');
+  const progressText = document.getElementById('multiple-cert-progress-text');
+  const starsText = document.getElementById('multiple-cert-stars-text');
+  const progressBar = document.getElementById('multiple-cert-progress-bar');
+  const totalStarsEl = document.getElementById('multiple-cert-total-stars');
+  const dateEl = document.getElementById('multiple-cert-date');
+
+  if (dateEl) {
+    const today = new Date();
+    dateEl.textContent = `${today.getFullYear()}/${today.getMonth() + 1}/${today.getDate()}`;
+  }
+
+  if (progressText) progressText.textContent = `${clearedCount} / 4`;
+  if (starsText) starsText.textContent = `${totalStars} / 12`;
+  if (progressBar) progressBar.style.width = `${(clearedCount / 4) * 100}%`;
+  if (totalStarsEl) totalStarsEl.textContent = totalStars;
+
+  // 解鎖條件：完成 4 大關卡
+  if (clearedCount >= 4) {
+    if (lockedState) lockedState.classList.add('hidden');
+    if (unlockedState) unlockedState.classList.remove('hidden');
+  } else {
+    if (lockedState) lockedState.classList.remove('hidden');
+    if (unlockedState) unlockedState.classList.add('hidden');
+  }
+}
+
+const ALL_STUDENT_NAME_INPUT_IDS = [
+  'multiple-student-name',
+  'multiple-cert-name-preset',
+  'multiple-cert-recipient-input',
+  'stageover-cert-name-input',
+  'prime-cert-name-preset',
+  'prime-cert-recipient-input',
+  'cert-student-name',
+  'square-cert-name-preset',
+  'square-cert-recipient-input',
+  'square-student-name',
+  'balloon-player-name',
+  'card-player-name'
+];
+
+function syncAllStudentNameInputs(name) {
+  if (typeof name !== 'string') return;
+  const trimmed = name.trim();
+  if (trimmed) {
+    localStorage.setItem(KEY_SAVED_PLAYER_NAME, trimmed);
+  }
+  ALL_STUDENT_NAME_INPUT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.value !== name) {
+      el.value = name;
+    }
+  });
+}
+
+function setupGlobalNameSync() {
+  const savedName = localStorage.getItem(KEY_SAVED_PLAYER_NAME) || '';
+  ALL_STUDENT_NAME_INPUT_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      if (savedName) el.value = savedName;
+      el.addEventListener('input', (e) => {
+        syncAllStudentNameInputs(e.target.value);
+      });
+      el.addEventListener('change', (e) => {
+        syncAllStudentNameInputs(e.target.value);
+      });
+    }
+  });
+}
+
+function setupMultipleCertificate() {
+  updateMultipleCertificateUI();
+
+  const btnPrint = document.getElementById('btn-print-multiple-cert');
+  if (btnPrint) {
+    btnPrint.addEventListener('click', () => window.print());
+  }
+
+  const btnReset = document.getElementById('btn-reset-multiple-progress');
+  if (btnReset) {
+    btnReset.addEventListener('click', () => {
+      if (confirm('確定要重置倍數檢驗所的所有關卡鑽石紀錄嗎？\n（重置後證書將重新鎖定，需再次通關 4 大關卡）')) {
+        for (let s = 1; s <= 4; s++) {
+          localStorage.removeItem(`rus_math_inspector_stars_${s}`);
+        }
+        multipleInspector.renderStageNavStars();
+        updateMultipleCertificateUI();
+        updateHeaderAndCodexUI();
+        showGlobalFeedback('已重置倍數檢驗所關卡鑽石紀錄', 'info');
+      }
+    });
+  }
+
+  const btnGoPlay = document.getElementById('btn-multiple-go-play');
+  if (btnGoPlay) {
+    btnGoPlay.addEventListener('click', () => {
+      const tabGame = document.querySelector('#grade-7-multiple-pavilion .sub-tab-btn[data-subtarget="multiple-game-view"]');
+      if (tabGame) tabGame.click();
+    });
+  }
+
+  const btnGoCert = document.getElementById('btn-stageover-go-cert');
+  if (btnGoCert) {
+    btnGoCert.addEventListener('click', () => {
+      const overlay = document.getElementById('overlay-multiple-stageover');
+      if (overlay) overlay.classList.add('hidden');
+      const tabCert = document.querySelector('#grade-7-multiple-pavilion .sub-tab-btn[data-subtarget="multiple-cert-view"]');
+      if (tabCert) tabCert.click();
+    });
+  }
+}
+
+function setupMultipleInspector() {
+  multipleInspector.renderStageNavStars();
+  setupMultipleCertificate();
+}
+
+
