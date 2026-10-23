@@ -274,7 +274,49 @@ const KEY_SAVED_PLAYER_NAME = 'rus_math_player_name';
 const FIREBASE_DB_URL = 'https://rus-math-class-default-rtdb.firebaseio.com';
 let isSyncingLeaderboard = false;
 
-// 從雲端同步七年級與八年級排行榜
+// 解析雲端回傳資料（支援傳統 Array 或 Firebase POST 生成的 Push-Key 物件）
+function parseLeaderboardCloudData(data) {
+  if (!data) return [];
+  if (Array.isArray(data)) {
+    return data.filter(Boolean);
+  }
+  if (typeof data === 'object') {
+    const list = [];
+    Object.values(data).forEach(item => {
+      if (!item) return;
+      if (Array.isArray(item)) {
+        list.push(...item.filter(Boolean));
+      } else if (typeof item === 'object') {
+        list.push(item);
+      }
+    });
+    return list;
+  }
+  return [];
+}
+
+// 智慧雙向合併本機與雲端戰績，依唯一 ID 去重，永不遺漏任何同學成績
+function mergeLeaderboardLists(cloudList, localList, comparator, limit = 100) {
+  const map = new Map();
+  const getKey = (item) => {
+    if (item.id) return String(item.id);
+    return `${item.name || ''}_${item.score != null ? item.score : item.seconds}_${item.date || ''}_${item.rangeMax || item.rangeMode || ''}`;
+  };
+
+  [...cloudList, ...localList].forEach(item => {
+    if (!item) return;
+    const k = getKey(item);
+    if (!map.has(k)) {
+      map.set(k, item);
+    }
+  });
+
+  const merged = Array.from(map.values());
+  merged.sort(comparator);
+  return merged.slice(0, limit);
+}
+
+// 從雲端同步七年級與八年級排行榜（增量安全合併）
 async function syncLeaderboardsFromCloud(callback) {
   if (isSyncingLeaderboard) return;
   isSyncingLeaderboard = true;
@@ -286,24 +328,26 @@ async function syncLeaderboardsFromCloud(callback) {
 
     if (res7.ok) {
       const data7 = await res7.json();
-      if (Array.isArray(data7)) {
-        localStorage.setItem(KEY_LEADERBOARD_PRIME, JSON.stringify(data7));
-      } else if (data7 && typeof data7 === 'object') {
-        const arr = Object.values(data7);
-        arr.sort((a, b) => (b.score !== a.score ? b.score - a.score : (b.accuracy !== a.accuracy ? b.accuracy - a.accuracy : b.id - a.id)));
-        localStorage.setItem(KEY_LEADERBOARD_PRIME, JSON.stringify(arr.slice(0, 50)));
-      }
+      const cloudList7 = parseLeaderboardCloudData(data7);
+      const localList7 = getGrade7Leaderboard();
+      const merged7 = mergeLeaderboardLists(cloudList7, localList7, (a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+        return (b.id || 0) - (a.id || 0);
+      });
+      localStorage.setItem(KEY_LEADERBOARD_PRIME, JSON.stringify(merged7));
     }
 
     if (res8.ok) {
       const data8 = await res8.json();
-      if (Array.isArray(data8)) {
-        localStorage.setItem(KEY_LEADERBOARD_SQUARE, JSON.stringify(data8));
-      } else if (data8 && typeof data8 === 'object') {
-        const arr = Object.values(data8);
-        arr.sort((a, b) => (a.seconds !== b.seconds ? a.seconds - b.seconds : (a.moves !== b.moves ? a.moves - b.moves : b.id - a.id)));
-        localStorage.setItem(KEY_LEADERBOARD_SQUARE, JSON.stringify(arr.slice(0, 50)));
-      }
+      const cloudList8 = parseLeaderboardCloudData(data8);
+      const localList8 = getGrade8Leaderboard();
+      const merged8 = mergeLeaderboardLists(cloudList8, localList8, (a, b) => {
+        if (a.seconds !== b.seconds) return a.seconds - b.seconds;
+        if (a.moves !== b.moves) return a.moves - b.moves;
+        return (b.id || 0) - (a.id || 0);
+      });
+      localStorage.setItem(KEY_LEADERBOARD_SQUARE, JSON.stringify(merged8));
     }
 
     if (typeof callback === 'function') callback();
@@ -314,27 +358,27 @@ async function syncLeaderboardsFromCloud(callback) {
   }
 }
 
-// 戰績上傳至雲端
-async function pushGrade7ScoreToCloud() {
+// 戰績上傳至雲端（使用 POST 增量追加，絕對不會覆蓋全班其他同學的紀錄！）
+async function pushGrade7ScoreToCloud(entry) {
+  if (!entry) return;
   try {
-    const list = getGrade7Leaderboard();
     await fetch(`${FIREBASE_DB_URL}/leaderboard_grade7.json`, {
-      method: 'PUT',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(list)
+      body: JSON.stringify(entry)
     });
   } catch (e) {
     console.warn('雲端上傳七年級戰績失敗:', e);
   }
 }
 
-async function pushGrade8ScoreToCloud() {
+async function pushGrade8ScoreToCloud(entry) {
+  if (!entry) return;
   try {
-    const list = getGrade8Leaderboard();
     await fetch(`${FIREBASE_DB_URL}/leaderboard_grade8.json`, {
-      method: 'PUT',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(list)
+      body: JSON.stringify(entry)
     });
   } catch (e) {
     console.warn('雲端上傳八年級戰績失敗:', e);
@@ -427,7 +471,7 @@ function saveGrade7LeaderboardEntry(entry) {
   } catch (e) {
     console.warn('儲存七年級排行榜失敗:', e);
   }
-  pushGrade7ScoreToCloud();
+  pushGrade7ScoreToCloud(entry);
 }
 
 let currentGrade7LeaderboardFilter = 'all';
@@ -452,7 +496,10 @@ function renderGrade7Leaderboard(filter = currentGrade7LeaderboardFilter) {
   }
   if (emptyEl) emptyEl.classList.add('hidden');
 
-  filtered.forEach((r, idx) => {
+  // 取前 10 名（依分數由高至低，若低於第 10 名自動刷掉，人名可重複上榜）
+  const top10 = filtered.slice(0, 10);
+
+  top10.forEach((r, idx) => {
     const rank = idx + 1;
     let rankBadgeHtml = '';
     if (rank === 1) rankBadgeHtml = '<span class="rank-badge rank-1" title="冠軍">🥇</span>';
@@ -613,7 +660,7 @@ function saveGrade8LeaderboardEntry(entry) {
   } catch (e) {
     console.warn('儲存八年級排行榜失敗:', e);
   }
-  pushGrade8ScoreToCloud();
+  pushGrade8ScoreToCloud(entry);
 }
 
 let currentGrade8LeaderboardFilter = 'all';
@@ -638,7 +685,10 @@ function renderGrade8Leaderboard(filter = currentGrade8LeaderboardFilter) {
   }
   if (emptyEl) emptyEl.classList.add('hidden');
 
-  filtered.forEach((r, idx) => {
+  // 取前 10 名（依秒數由短至長，若低於第 10 名自動刷掉，人名可重複上榜）
+  const top10 = filtered.slice(0, 10);
+
+  top10.forEach((r, idx) => {
     const rank = idx + 1;
     let rankBadgeHtml = '';
     if (rank === 1) rankBadgeHtml = '<span class="rank-badge rank-1" title="冠軍">🥇</span>';
